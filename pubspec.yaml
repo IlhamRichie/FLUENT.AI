@@ -35,6 +35,8 @@ dependencies:
   get: ^4.7.2
   google_fonts: ^6.2.1
   lucide_icons: ^0.257.0
+  path_provider: ^2.1.5
+  permission_handler: ^12.0.0+1
 
 dev_dependencies:
   flutter_lints: ^5.0.0
@@ -50,9 +52,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
   # For details regarding adding assets from package dependencies, see

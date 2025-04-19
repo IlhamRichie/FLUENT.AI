@@ -1,12 +1,11 @@
+import 'package:fluent_ai/app/modules/register/controllers/register_controller.dart';
 import 'package:get/get.dart';
+import 'package:fluent_ai/app/data/services/api_service.dart';
 
-import '../controllers/register_controller.dart';
-
-class RegisterBinding extends Bindings {
+class RegisterBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<RegisterController>(
-      () => RegisterController(),
-    );
+    Get.lazyPut<RegisterController>(() => RegisterController());
+    Get.lazyPut<ApiService>(() => ApiService());
   }
 }

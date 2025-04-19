@@ -1,6 +1,6 @@
+import 'package:fluent_ai/app/modules/intro/controllers/intro_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/intro_controller.dart';
 
 class IntroView extends GetView<IntroController> {
   const IntroView({super.key});

@@ -1,12 +1,9 @@
+import 'package:fluent_ai/app/modules/intro/controllers/intro_controller.dart';
 import 'package:get/get.dart';
 
-import '../controllers/intro_controller.dart';
-
-class IntroBinding extends Bindings {
+class IntroBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<IntroController>(
-      () => IntroController(),
-    );
+    Get.lazyPut<IntroController>(() => IntroController());
   }
 }
