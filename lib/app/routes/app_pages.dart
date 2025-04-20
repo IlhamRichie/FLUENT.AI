@@ -6,6 +6,8 @@ import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/intro/bindings/intro_binding.dart';
 import '../modules/intro/views/intro_view.dart';
+import '../modules/latihan/bindings/latihan_binding.dart';
+import '../modules/latihan/views/latihan_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/register/bindings/register_binding.dart';
@@ -50,6 +52,11 @@ class AppPages {
       name: _Paths.AUTH,
       page: () => const AuthView(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: _Paths.LATIHAN,
+      page: () => const LatihanView(),
+      binding: LatihanBinding(),
     ),
   ];
 }

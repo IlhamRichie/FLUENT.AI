@@ -28,12 +28,33 @@ class LoginController extends GetxController {
 
   void startTextRotation() {
     Timer.periodic(const Duration(seconds: 2), (Timer timer) {
-      currentTextIndex.value = (currentTextIndex.value + 1) % footerTexts.length;
+      currentTextIndex.value =
+          (currentTextIndex.value + 1) % footerTexts.length;
     });
   }
 
   void togglePasswordVisibility() {
     obscureText.value = !obscureText.value;
+  }
+
+  //Sementara
+
+  // Tambahkan method untuk login Google
+  void loginWithGoogle() async {
+    // Tampilkan loading
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    // Simulasikan delay proses login
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Tutup dialog loading
+    Get.back();
+
+    // Navigasi ke home
+    Get.offAllNamed(Routes.HOME);
   }
 
   Future<void> login() async {

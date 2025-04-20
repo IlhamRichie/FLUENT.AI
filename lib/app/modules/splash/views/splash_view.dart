@@ -13,7 +13,24 @@ class SplashView extends GetView<SplashController> {
         child: Obx(() => AnimatedOpacity(
           opacity: controller.opacity.value,
           duration: const Duration(seconds: 2),
-          child: Image.asset('assets/images/logo FLUENT.png', width: 200),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Agar konten tidak memenuhi layar
+            children: [
+              Image.asset(
+                'assets/images/logo FLUENT.png',
+                width: 200,
+              ),
+              const SizedBox(height: 16), // Jarak antara gambar dan teks
+              Text(
+                'FLUENT',
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFFD84040), // Warna teks
+                ),
+              ),
+            ],
+          ),
         )),
       ),
     );

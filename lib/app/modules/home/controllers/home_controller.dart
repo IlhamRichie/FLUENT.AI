@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -15,6 +17,9 @@ class HomeController extends GetxController {
   final RxInt narrativeCount = 1.obs;
   final RxInt coverLetterCount = 0.obs;
 
+  final RxString countdownText = '23:59'.obs; // Hitung mundur awal
+  final RxBool isCountdownActive = false.obs; // Status hitung mundur
+
   // Token
   final RxInt tokens = 0.obs;
   final RxBool hasTokens = false.obs;
@@ -28,7 +33,8 @@ class HomeController extends GetxController {
   final RxList<Map<String, dynamic>> aiInterviews = <Map<String, dynamic>>[
     {
       'title': 'Wawancara AI - Mobile Developer',
-      'description': 'Latihan wawancara untuk posisi Mobile Developer dengan AI',
+      'description':
+          'Latihan wawancara untuk posisi Mobile Developer dengan AI',
       'date': 'Hari Ini, 14:30',
       'progress': 0.65,
       'score': 78,
@@ -112,6 +118,27 @@ class HomeController extends GetxController {
     Get.snackbar('Pengaturan', 'Fitur pengaturan akan datang segera!');
   }
 
+  void startCountdown() {
+    isCountdownActive.value = true;
+    int remainingSeconds = 24 * 60 * 60 - 1; // 23:59:59 detik
+
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (remainingSeconds > 0) {
+        remainingSeconds--;
+        int hours = remainingSeconds ~/ 3600;
+        int minutes = (remainingSeconds % 3600) ~/ 60;
+        int seconds = remainingSeconds % 60;
+
+        countdownText.value =
+            '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+      } else {
+        timer.cancel();
+        isCountdownActive.value = false;
+        hasTokens.value = false; // Reset token setelah hitung mundur selesai
+      }
+    });
+  }
+
   void getFreeTokens() {
     tokens.value += 5;
     hasTokens.value = true;
@@ -128,7 +155,8 @@ class HomeController extends GetxController {
     Get.snackbar(
       'Mulai Latihan',
       'Memulai wawancara level $level',
-      backgroundColor: interviewLevels.firstWhere((l) => l['level'] == level)['color'],
+      backgroundColor:
+          interviewLevels.firstWhere((l) => l['level'] == level)['color'],
       colorText: Colors.white,
     );
   }

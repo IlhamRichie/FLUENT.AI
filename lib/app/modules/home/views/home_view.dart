@@ -58,8 +58,8 @@ class HomeView extends GetView<HomeController> {
             const SizedBox(height: 16),
             _buildStatCard(),
             const SizedBox(height: 16),
-            Obx(() => controller.hasTokens.value 
-                ? _buildTokenBalance() 
+            Obx(() => controller.hasTokens.value
+                ? _buildTokenBalance()
                 : _buildEmptyTokenCard()),
             const SizedBox(height: 16),
             _buildInterviewLevelsSection(),
@@ -78,19 +78,14 @@ class HomeView extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Obx(() => Text(
-            'Hi, ${controller.username.value} 👋',
-            style: const TextStyle(
-              fontSize: 18, 
-              fontWeight: FontWeight.w600
-            ),
-          )),
+                'Hi, ${controller.username.value} 👋',
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              )),
           const SizedBox(height: 4),
           Text(
             'Yuk latih skill bicaramu bareng AI ✨',
-            style: TextStyle(
-              fontSize: 14, 
-              color: Colors.grey[600]
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
         ],
       ),
@@ -98,92 +93,102 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildStatCard() {
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12), // Radius sesuai dengan Card
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFD84040).withOpacity(1), // Warna pertama
+            const Color(0xFFD84040).withOpacity(0.5), // Warna kedua
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
+        padding: const EdgeInsets.all(2), // Ketebalan border (2 piksel)
+        child: Card(
+          elevation: 1,
+          color: Colors.white, // Set warna latar belakang Card menjadi putih
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(10), // Radius sedikit lebih kecil
+            side: BorderSide.none, // Hilangkan border default Card
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                CircleAvatar(
-                  backgroundColor: controller.primaryColor.withOpacity(0.1),
-                  child: Icon(
-                    LucideIcons.user,
-                    color: controller.primaryColor,
-                  ),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: controller.primaryColor.withOpacity(0.1),
+                      child: Icon(
+                        LucideIcons.user,
+                        color: controller.primaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Obx(() => Text(
+                          controller.username.value,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        )),
+                    const Spacer(),
+                    Obx(() => Text(
+                          'Skor: ${controller.averageScore.value.toStringAsFixed(1)}',
+                          style: TextStyle(color: Colors.grey[600]),
+                        )),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Obx(() => Text(
-                  controller.username.value,
-                  style: const TextStyle(fontWeight: FontWeight.w600)
-                )),
-                const Spacer(),
-                Obx(() => Text(
-                  'Skor: ${controller.averageScore.value.toStringAsFixed(1)}',
-                  style: TextStyle(color: Colors.grey[600]),
-                )),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem(
+                      value: controller.speechCount.value.toString(),
+                      label: 'Ucapan',
+                      icon: LucideIcons.mic2,
+                    ),
+                    _buildStatItem(
+                      value: controller.expressionCount.value.toString(),
+                      label: 'Ekspresi',
+                      icon: LucideIcons.smile,
+                    ),
+                    _buildStatItem(
+                      value: controller.narrativeCount.value.toString(),
+                      label: 'Narasi',
+                      icon: LucideIcons.text,
+                    ),
+                  ],
+                ),
               ],
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem(
-                  value: controller.speechCount.value.toString(),
-                  label: 'Ucapan',
-                  icon: LucideIcons.mic2,
-                ),
-                _buildStatItem(
-                  value: controller.expressionCount.value.toString(),
-                  label: 'Ekspresi',
-                  icon: LucideIcons.smile,
-                ),
-                _buildStatItem(
-                  value: controller.narrativeCount.value.toString(),
-                  label: 'Narasi',
-                  icon: LucideIcons.text,
-                ),
-              ],
-            )
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildStatItem({required String value, required String label, required IconData icon}) {
+  Widget _buildStatItem(
+      {required String value, required String label, required IconData icon}) {
     return Column(
       children: [
         Icon(icon, size: 20, color: controller.primaryColor),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16, 
-            fontWeight: FontWeight.bold
-          )
-        ),
+        Text(value,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 2),
-        Text(
-          label, 
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600]
-          )
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }
 
   Widget _buildEmptyTokenCard() {
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      decoration: BoxDecoration(
+        color:
+            Colors.orange.withOpacity(0.3), // Warna oranye dengan opacity 30%
+        borderRadius: BorderRadius.circular(12), // Radius sesuai dengan Card
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -203,10 +208,8 @@ class HomeView extends GetView<HomeController> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12, 
-                  vertical: 8
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
               onPressed: controller.getFreeTokens,
               child: const Text(
@@ -233,12 +236,11 @@ class HomeView extends GetView<HomeController> {
             Icon(LucideIcons.star, color: Colors.green),
             const SizedBox(width: 12),
             Obx(() => Text(
-              '${controller.tokens.value} Token tersedia',
-              style: const TextStyle(fontSize: 14),
-            )),
+                  '${controller.tokens.value} Token tersedia',
+                  style: const TextStyle(fontSize: 14),
+                )),
             const Spacer(),
-            TextButton
-            (
+            TextButton(
               onPressed: controller.getFreeTokens,
               child: Text(
                 'Token Gratis',
@@ -269,14 +271,15 @@ class HomeView extends GetView<HomeController> {
         SizedBox(
           height: 140,
           child: Obx(() => ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            children: controller.interviewLevels.map((level) => 
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: _buildLevelCard(level),
-              )).toList(),
-          )),
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                children: controller.interviewLevels
+                    .map((level) => Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: _buildLevelCard(level),
+                        ))
+                    .toList(),
+              )),
         ),
       ],
     );
@@ -352,9 +355,11 @@ class HomeView extends GetView<HomeController> {
         ),
         const SizedBox(height: 8),
         Obx(() => Column(
-          children: controller.aiInterviews.take(2).map((interview) => 
-            _buildActivityItem(interview)).toList(),
-        )),
+              children: controller.aiInterviews
+                  .take(2)
+                  .map((interview) => _buildActivityItem(interview))
+                  .toList(),
+            )),
         const SizedBox(height: 8),
         TextButton(
           onPressed: () {},
@@ -375,11 +380,16 @@ class HomeView extends GetView<HomeController> {
       statusColor = Colors.orange;
     }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      margin:
+          const EdgeInsets.symmetric(vertical: 8), // Jarak vertikal antar card
+      decoration: BoxDecoration(
+        color: Colors.white, // Warna latar belakang putih
+        borderRadius: BorderRadius.circular(12), // Radius melengkung
+        border: Border.all(
+          color: statusColor.withOpacity(0.5), // Warna border sesuai status
+          width: 1.0, // Ketebalan border tipis
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -389,7 +399,8 @@ class HomeView extends GetView<HomeController> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: controller.primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
@@ -404,7 +415,8 @@ class HomeView extends GetView<HomeController> {
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),

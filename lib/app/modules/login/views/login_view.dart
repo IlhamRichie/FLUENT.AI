@@ -57,24 +57,24 @@ class LoginView extends GetView<LoginController> {
                     ),
                     const SizedBox(height: 10),
                     Obx(() => TextField(
-                      controller: controller.passwordController,
-                      obscureText: controller.obscureText.value,
-                      decoration: InputDecoration(
-                        labelText: "Password",
-                        hintText: "Masukkan password kamu",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            controller.obscureText.value
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                          controller: controller.passwordController,
+                          obscureText: controller.obscureText.value,
+                          decoration: InputDecoration(
+                            labelText: "Password",
+                            hintText: "Masukkan password kamu",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                controller.obscureText.value
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: controller.togglePasswordVisibility,
+                            ),
                           ),
-                          onPressed: controller.togglePasswordVisibility,
-                        ),
-                      ),
-                    )),
+                        )),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: controller.login,
@@ -109,7 +109,8 @@ class LoginView extends GetView<LoginController> {
                     ),
                     const SizedBox(height: 10),
                     OutlinedButton(
-                      onPressed: () {},
+                      onPressed:
+                          controller.loginWithGoogle, // Panggil method baru
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.blueAccent),
                         shape: RoundedRectangleBorder(
@@ -156,18 +157,18 @@ class LoginView extends GetView<LoginController> {
               ),
               const SizedBox(height: 20),
               Obx(() => AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                child: Text(
-                  controller.footerTexts[controller.currentTextIndex.value],
-                  key: ValueKey<int>(controller.currentTextIndex.value),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              )),
+                    duration: const Duration(milliseconds: 500),
+                    child: Text(
+                      controller.footerTexts[controller.currentTextIndex.value],
+                      key: ValueKey<int>(controller.currentTextIndex.value),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  )),
             ],
           ),
         ),
