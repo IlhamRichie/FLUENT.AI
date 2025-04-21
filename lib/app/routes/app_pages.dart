@@ -8,8 +8,12 @@ import '../modules/intro/bindings/intro_binding.dart';
 import '../modules/intro/views/intro_view.dart';
 import '../modules/latihan/bindings/latihan_binding.dart';
 import '../modules/latihan/views/latihan_view.dart';
+import '../modules/latihan_detail/bindings/latihan_detail_binding.dart';
+import '../modules/latihan_detail/views/latihan_detail_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/progres/bindings/progres_binding.dart';
+import '../modules/progres/views/progres_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
@@ -57,6 +61,16 @@ class AppPages {
       name: _Paths.LATIHAN,
       page: () => const LatihanView(),
       binding: LatihanBinding(),
+    ),
+    GetPage(
+      name: _Paths.LATIHAN_DETAIL,
+      page: () => const LatihanDetailView(),
+      binding: LatihanDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROGRES,
+      page: () => const ProgresView(),
+      binding: ProgresBinding(),
     ),
   ];
 }

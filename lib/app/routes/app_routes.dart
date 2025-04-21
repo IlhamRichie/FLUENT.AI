@@ -10,6 +10,8 @@ abstract class Routes {
   static const SPLASH = _Paths.SPLASH;
   static const AUTH = _Paths.AUTH;
   static const LATIHAN = _Paths.LATIHAN;
+  static const LATIHAN_DETAIL = _Paths.LATIHAN_DETAIL;
+  static const PROGRES = _Paths.PROGRES;
 }
 
 abstract class _Paths {
@@ -21,4 +23,6 @@ abstract class _Paths {
   static const SPLASH = '/splash';
   static const AUTH = '/auth';
   static const LATIHAN = '/latihan';
+  static const LATIHAN_DETAIL = '/latihan-detail';
+  static const PROGRES = '/progres';
 }

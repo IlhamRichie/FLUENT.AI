@@ -1,12 +1,11 @@
 import 'package:get/get.dart';
+import 'package:fluent_ai/app/modules/latihan/controllers/latihan_controller.dart';
+import 'package:fluent_ai/app/data/services/latihan_service.dart';
 
-import '../controllers/latihan_controller.dart';
-
-class LatihanBinding extends Bindings {
+class LatihanBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<LatihanController>(
-      () => LatihanController(),
-    );
+    Get.lazyPut<LatihanService>(() => LatihanService());
+    Get.lazyPut<LatihanController>(() => LatihanController());
   }
 }
