@@ -33,11 +33,10 @@ class LatihanController extends GetxController {
 
   void selectCategory(String category) {
     selectedCategory.value = category;
-    // Filter logic bisa ditambahkan di sini
   }
 
   void startLatihan(Map<String, dynamic> latihan) {
-    Get.toNamed('/latihan-detail', arguments: latihan);
+    Get.toNamed('/latihan', arguments: latihan);
   }
 
   void refreshData() async {

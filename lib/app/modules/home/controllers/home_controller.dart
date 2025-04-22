@@ -118,17 +118,17 @@ class HomeController extends GetxController {
     {
       'label': 'Progres',
       'icon': LucideIcons.trendingUp,
-      'route': '/progress',
+      'route': '/progres',
     },
     {
       'label': 'Sertifikat',
       'icon': LucideIcons.award,
-      'route': '/certificates',
+      'route': '/sertifikat',
     },
     {
       'label': 'Akun',
       'icon': LucideIcons.user,
-      'route': '/profile',
+      'route': '/profil',
     },
   ];
 
@@ -138,7 +138,7 @@ class HomeController extends GetxController {
   }
 
   void navigateToPractice(String type) {
-    Get.toNamed('/practice-detail', arguments: {'type': type});
+    Get.toNamed('/latihan-detail', arguments: {'type': type});
   }
 
   void showPracticeDialog() {

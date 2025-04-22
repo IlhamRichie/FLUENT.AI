@@ -14,7 +14,7 @@ class HomeView extends GetView<HomeController> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'FLUENT',
+          '🤖 FLUENT',
           style: TextStyle(
             color: controller.primaryColor,
             fontWeight: FontWeight.bold,
@@ -46,6 +46,7 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
       bottomNavigationBar: Obx(() => BottomNavigationBar(
+        backgroundColor: Colors.white,
         currentIndex: controller.currentTabIndex.value,
         onTap: controller.changeTab,
         type: BottomNavigationBarType.fixed,

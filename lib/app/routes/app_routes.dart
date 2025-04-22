@@ -12,6 +12,8 @@ abstract class Routes {
   static const LATIHAN = _Paths.LATIHAN;
   static const LATIHAN_DETAIL = _Paths.LATIHAN_DETAIL;
   static const PROGRES = _Paths.PROGRES;
+  static const SERTIFIKAT = _Paths.SERTIFIKAT;
+  static const PROFIL = _Paths.PROFIL;
 }
 
 abstract class _Paths {
@@ -25,4 +27,6 @@ abstract class _Paths {
   static const LATIHAN = '/latihan';
   static const LATIHAN_DETAIL = '/latihan-detail';
   static const PROGRES = '/progres';
+  static const SERTIFIKAT = '/sertifikat';
+  static const PROFIL = '/profil';
 }

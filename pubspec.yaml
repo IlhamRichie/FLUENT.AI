@@ -38,6 +38,7 @@ dependencies:
   lucide_icons: ^0.257.0
   path_provider: ^2.1.5
   permission_handler: ^12.0.0+1
+  syncfusion_flutter_charts: ^29.1.38
 
 dev_dependencies:
   flutter_lints: ^5.0.0

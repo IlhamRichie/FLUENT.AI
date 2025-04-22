@@ -35,12 +35,12 @@ class LatihanView extends GetView<LatihanController> {
         child: Obx(() {
           if (controller.isLoading.value) {
             return const Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD84040)),
+                child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD84040)),
             ));
           }
-          
+
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
@@ -54,22 +54,17 @@ class LatihanView extends GetView<LatihanController> {
                   ],
                 ),
               ),
-              
               SliverToBoxAdapter(
                 child: _buildSectionHeader('Pilih Jenis Latihan'),
               ),
-              
               SliverPadding(
                 padding: const EdgeInsets.only(bottom: 24),
                 sliver: _buildKategoriGrid(),
               ),
-              
               SliverToBoxAdapter(
                 child: _buildSectionHeader('Latihan Terbaru'),
               ),
-              
               _buildLatihanList(),
-              
               const SliverToBoxAdapter(
                 child: SizedBox(height: 24),
               ),
@@ -98,23 +93,19 @@ class LatihanView extends GetView<LatihanController> {
     return SizedBox(
       height: 40,
       child: Obx(() => ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: controller.kategoriLatihan.length + 1,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return _buildFilterChip(
-              'Semua', 
-              controller.selectedCategory.value == 'Semua'
-            );
-          }
-          final kategori = controller.kategoriLatihan[index - 1];
-          return _buildFilterChip(
-            kategori['nama'], 
-            controller.selectedCategory.value == kategori['nama']
-          );
-        },
-      )),
+            scrollDirection: Axis.horizontal,
+            itemCount: controller.kategoriLatihan.length + 1,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return _buildFilterChip(
+                    'Semua', controller.selectedCategory.value == 'Semua');
+              }
+              final kategori = controller.kategoriLatihan[index - 1];
+              return _buildFilterChip(kategori['nama'],
+                  controller.selectedCategory.value == kategori['nama']);
+            },
+          )),
     );
   }
 
@@ -142,23 +133,26 @@ class LatihanView extends GetView<LatihanController> {
 
   Widget _buildKategoriGrid() {
     return Obx(() => SliverGrid(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.1,
-      ),
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => _buildKategoriCard(controller.kategoriLatihan[index]),
-        childCount: controller.kategoriLatihan.length,
-      ),
-    ));
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount:
+                MediaQuery.of(Get.context!).size.width > 400 ? 2 : 1,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.6,
+            mainAxisExtent: 170,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) =>
+                _buildKategoriCard(controller.kategoriLatihan[index]),
+            childCount: controller.kategoriLatihan.length,
+          ),
+        ));
   }
 
   Widget _buildKategoriCard(Map<String, dynamic> kategori) {
     final color = _parseColor(kategori['warna']);
     final bgColor = color.withOpacity(0.05);
-    
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -211,23 +205,24 @@ class LatihanView extends GetView<LatihanController> {
               Wrap(
                 spacing: 4,
                 runSpacing: 4,
-                children: (kategori['level'] as List).map((level) => 
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      level,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: color,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  )
-                ).toList(),
+                children: (kategori['level'] as List)
+                    .map((level) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: color.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            level,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: color,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ))
+                    .toList(),
               ),
             ],
           ),
@@ -238,20 +233,20 @@ class LatihanView extends GetView<LatihanController> {
 
   Widget _buildLatihanList() {
     return Obx(() => SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _buildLatihanItem(controller.latihanTerbaru[index]),
-        ),
-        childCount: controller.latihanTerbaru.length,
-      ),
-    ));
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildLatihanItem(controller.latihanTerbaru[index]),
+            ),
+            childCount: controller.latihanTerbaru.length,
+          ),
+        ));
   }
 
   Widget _buildLatihanItem(Map<String, dynamic> latihan) {
     final color = _parseColor(latihan['warna']);
     final bgColor = color.withOpacity(0.05);
-    
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -305,7 +300,8 @@ class LatihanView extends GetView<LatihanController> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: color.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(4),
@@ -361,11 +357,16 @@ class LatihanView extends GetView<LatihanController> {
 
   IconData _getCategoryIcon(String iconName) {
     switch (iconName.toLowerCase()) {
-      case 'interview': return LucideIcons.briefcase;
-      case 'public_speaking': return LucideIcons.mic2;
-      case 'expression': return LucideIcons.smile;
-      case 'filler_word': return LucideIcons.type;
-      default: return LucideIcons.activity;
+      case 'interview':
+        return LucideIcons.briefcase;
+      case 'public_speaking':
+        return LucideIcons.mic2;
+      case 'expression':
+        return LucideIcons.smile;
+      case 'filler_word':
+        return LucideIcons.type;
+      default:
+        return LucideIcons.activity;
     }
   }
 

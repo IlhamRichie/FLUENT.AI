@@ -12,10 +12,14 @@ import '../modules/latihan_detail/bindings/latihan_detail_binding.dart';
 import '../modules/latihan_detail/views/latihan_detail_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/profil/bindings/profil_binding.dart';
+import '../modules/profil/views/profil_view.dart';
 import '../modules/progres/bindings/progres_binding.dart';
 import '../modules/progres/views/progres_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/sertifikat/bindings/sertifikat_binding.dart';
+import '../modules/sertifikat/views/sertifikat_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 
@@ -71,6 +75,16 @@ class AppPages {
       name: _Paths.PROGRES,
       page: () => const ProgresView(),
       binding: ProgresBinding(),
+    ),
+    GetPage(
+      name: _Paths.SERTIFIKAT,
+      page: () => const SertifikatView(),
+      binding: SertifikatBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROFIL,
+      page: () => const ProfilView(),
+      binding: ProfilBinding(),
     ),
   ];
 }
