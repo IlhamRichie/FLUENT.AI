@@ -17,35 +17,100 @@ class ProgresView extends GetView<ProgresController> {
         title: const Text(
           'Progres Saya',
           style: TextStyle(
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.bold,
             fontSize: 20,
             color: Colors.black,
           ),
         ),
+        centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.share2, color: Colors.black),
-            onPressed: () =>
-                Get.snackbar('Berbagi', 'Fitur berbagi progres akan datang!'),
+            icon: const Icon(LucideIcons.share2, size: 20),
+            onPressed: () => Get.snackbar('Berbagi', 'Fitur berbagi progres akan datang!'),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTimeframeSelector(),
-            const SizedBox(height: 16),
-            _buildProgressChart(),
-            const SizedBox(height: 24),
-            _buildSkillMetrics(),
-            const SizedBox(height: 24),
-            _buildImprovementAreas(),
-            const SizedBox(height: 24),
-            _buildBadgesSection(),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD84040)),
+            ),
+          );
+        }
+        
+        return CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTimeframeSelector(),
+                    const SizedBox(height: 16),
+                    _buildProgressChart(),
+                    const SizedBox(height: 24),
+                    _buildSectionHeader('Metrik Kemampuan'),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: _buildSkillMetricsGrid(),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader('Area Perbaikan'),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: _buildImprovementAreasList(),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader('Pencapaian & Badge'),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: _buildBadgesGrid(),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 24),
+            ),
           ],
-        ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
       ),
     );
   }
@@ -55,10 +120,32 @@ class ProgresView extends GetView<ProgresController> {
           children: [
             Expanded(
               child: SegmentedButton<String>(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.selected)) {
+                        return const Color(0xFFD84040).withOpacity(0.2);
+                      }
+                      return Colors.white;
+                    },
+                  ),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
                 segments: controller.timeframes
                     .map((timeframe) => ButtonSegment<String>(
                           value: timeframe,
-                          label: Text(timeframe),
+                          label: Text(
+                            timeframe,
+                            style: TextStyle(
+                              color: controller.selectedTimeframe.value == timeframe
+                                  ? const Color(0xFFD84040)
+                                  : Colors.grey[700],
+                            ),
+                          ),
                         ))
                     .toList(),
                 selected: {controller.selectedTimeframe.value},
@@ -71,10 +158,32 @@ class ProgresView extends GetView<ProgresController> {
             const SizedBox(width: 16),
             Expanded(
               child: SegmentedButton<String>(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.selected)) {
+                        return const Color(0xFFD84040).withOpacity(0.2);
+                      }
+                      return Colors.white;
+                    },
+                  ),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
                 segments: controller.chartDataOptions
                     .map((data) => ButtonSegment<String>(
                           value: data,
-                          label: Text(data),
+                          label: Text(
+                            data,
+                            style: TextStyle(
+                              color: controller.selectedChartData.value == data
+                                  ? const Color(0xFFD84040)
+                                  : Colors.grey[700],
+                            ),
+                          ),
                         ))
                     .toList(),
                 selected: {controller.selectedChartData.value},
@@ -90,10 +199,15 @@ class ProgresView extends GetView<ProgresController> {
 
   Widget _buildProgressChart() {
     return Obx(() => Card(
-          elevation: 2,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: Colors.grey[200]!,
+              width: 1,
+            ),
           ),
+          color: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -123,14 +237,25 @@ class ProgresView extends GetView<ProgresController> {
                             controller.getXAxisLabel(data),
                         yValueMapper: (data, _) =>
                             controller.getChartValue(data),
-                        color: controller.chartColor,
+                        color: const Color(0xFFD84040),
                         width: 3,
-                        markerSettings: const MarkerSettings(isVisible: true),
-                        dataLabelSettings:
-                            const DataLabelSettings(isVisible: true),
+                        markerSettings: const MarkerSettings(
+                          isVisible: true,
+                          shape: DataMarkerType.circle,
+                          borderWidth: 2,
+                          borderColor: Colors.white,
+                        ),
+                        dataLabelSettings: const DataLabelSettings(
+                          isVisible: true,
+                          textStyle: TextStyle(fontSize: 10),
+                        ),
                       ),
                     ],
-                    tooltipBehavior: TooltipBehavior(enable: true),
+                    tooltipBehavior: TooltipBehavior(
+                      enable: true,
+                      color: const Color(0xFFD84040),
+                      textStyle: const TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],
@@ -139,39 +264,28 @@ class ProgresView extends GetView<ProgresController> {
         ));
   }
 
-  Widget _buildSkillMetrics() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Metrik Kemampuan',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+  Widget _buildSkillMetricsGrid() {
+    return Obx(() => SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 1,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.5,
           ),
-        ),
-        const SizedBox(height: 12),
-        Obx(() => GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.5,
-              children: controller.skillMetrics.entries
-                  .map((entry) => _buildSkillMetricCard(
-                        title: entry.key,
-                        value: entry.value,
-                      ))
-                  .toList(),
-            )),
-      ],
-    );
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final entry = controller.skillMetrics.entries.elementAt(index);
+              return _buildSkillMetricCard(
+                title: entry.key,
+                value: entry.value,
+              );
+            },
+            childCount: controller.skillMetrics.length,
+          ),
+        ));
   }
 
-  Widget _buildSkillMetricCard(
-      {required String title, required dynamic value}) {
-    // Convert skill name to display format
+  Widget _buildSkillMetricCard({required String title, required dynamic value}) {
     String displayTitle = title.replaceAll('_', ' ').capitalizeFirst!;
     IconData icon;
     Color color;
@@ -195,7 +309,7 @@ class ProgresView extends GetView<ProgresController> {
         break;
       case 'filler_words':
         icon = LucideIcons.volumeX;
-        color = Colors.red;
+        color = const Color(0xFFD84040);
         break;
       default:
         icon = LucideIcons.star;
@@ -203,38 +317,48 @@ class ProgresView extends GetView<ProgresController> {
     }
 
     return Card(
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: color.withOpacity(0.2),
+          width: 1,
+        ),
       ),
+      color: color.withOpacity(0.05),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                Icon(icon, size: 20, color: color),
-                const SizedBox(width: 8),
-                Text(
-                  displayTitle,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, size: 20, color: color),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              displayTitle,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: color,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               title == 'filler_words' ? '$value/menit' : '$value/100',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: color,
               ),
             ),
             if (title != 'filler_words') ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               LinearProgressIndicator(
                 value: value / 100,
                 backgroundColor: Colors.grey[200],
@@ -249,60 +373,84 @@ class ProgresView extends GetView<ProgresController> {
     );
   }
 
-  Widget _buildImprovementAreas() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Area Perbaikan',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+  Widget _buildImprovementAreasList() {
+    return Obx(() => SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildImprovementCard(controller.improvementAreas[index]),
+            ),
+            childCount: controller.improvementAreas.length,
           ),
-        ),
-        const SizedBox(height: 12),
-        Obx(() => Column(
-              children: controller.improvementAreas
-                  .map((area) => _buildImprovementCard(area))
-                  .toList(),
-            )),
-      ],
-    );
+        ));
   }
 
   Widget _buildImprovementCard(Map<String, dynamic> area) {
+    final colors = [
+      const Color(0xFFD84040),
+      Colors.blue,
+      Colors.green,
+      Colors.purple,
+    ];
+    final color = colors[controller.improvementAreas.indexOf(area) % colors.length];
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: color.withOpacity(0.2),
+          width: 1,
+        ),
       ),
+      color: color.withOpacity(0.05),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              area['area'],
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    LucideIcons.alertCircle,
+                    size: 20,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  area['area'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: color,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(area['description']),
+            const SizedBox(height: 12),
+            Text(
+              area['description'],
+              style: TextStyle(color: Colors.grey[700]),
+            ),
             const SizedBox(height: 12),
             LinearProgressIndicator(
               value: area['progress'],
               backgroundColor: Colors.grey[200],
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
               minHeight: 8,
               borderRadius: BorderRadius.circular(4),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                const Icon(LucideIcons.lightbulb, size: 16),
+                Icon(LucideIcons.lightbulb, size: 16, color: color),
                 const SizedBox(width: 8),
                 Text(
                   'Saran: ${area['suggestion']}',
@@ -319,67 +467,70 @@ class ProgresView extends GetView<ProgresController> {
     );
   }
 
-  Widget _buildBadgesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Pencapaian & Badge',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+  Widget _buildBadgesGrid() {
+    return Obx(() => SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.2,
           ),
-        ),
-        const SizedBox(height: 12),
-        Obx(() => GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.2,
-              children: controller.badges
-                  .map((badge) => _buildBadgeCard(badge))
-                  .toList(),
-            )),
-      ],
-    );
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => _buildBadgeCard(controller.badges[index]),
+            childCount: controller.badges.length,
+          ),
+        ));
   }
 
   Widget _buildBadgeCard(Map<String, dynamic> badge) {
+    final color = badge['unlocked'] ? const Color(0xFFD84040) : Colors.grey;
+
     return Card(
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: color.withOpacity(0.2),
+          width: 1,
+        ),
       ),
-      color: badge['unlocked'] ? Colors.white : Colors.grey[200],
+      color: color.withOpacity(0.05),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              badge['icon'],
-              size: 32,
-              color: badge['unlocked'] ? Colors.amber : Colors.grey,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                badge['icon'],
+                size: 24,
+                color: color,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               badge['title'],
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: badge['unlocked'] ? Colors.black : Colors.grey,
+                color: color,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              badge['date'],
-              style: TextStyle(
-                fontSize: 10,
-                color: badge['unlocked'] ? Colors.grey : Colors.grey[400],
+            if (badge['unlocked']) ...[
+              const SizedBox(height: 4),
+              Text(
+                badge['date'],
+                style: TextStyle(
+                  fontSize: 10,
+                  color: color.withOpacity(0.7),
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

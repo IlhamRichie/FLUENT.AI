@@ -16,7 +16,7 @@ class HomeView extends GetView<HomeController> {
         title: Text(
           '🤖 FLUENT',
           style: TextStyle(
-            color: controller.primaryColor,
+            color: const Color(0xFFD84040),
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
@@ -28,35 +28,116 @@ class HomeView extends GetView<HomeController> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildGreetingSection(),
-            const SizedBox(height: 24),
-            _buildStatsSection(),
-            const SizedBox(height: 24),
-            _buildQuickActions(),
-            const SizedBox(height: 24),
-            _buildLatestActivities(),
-            const SizedBox(height: 24),
-            _buildPracticeRecommendations(),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD84040)),
+            ),
+          );
+        }
+        
+        return CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildGreetingSection(),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverToBoxAdapter(
+                child: _buildStatsSection(),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader('Mulai Latihan Cepat'),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: _buildQuickActionsGrid(),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader('Aktivitas Terakhir'),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: _buildLatestActivitiesList(),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader('Rekomendasi Untukmu'),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverToBoxAdapter(
+                child: _buildPracticeRecommendations(),
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 24),
+            ),
           ],
-        ),
-      ),
+        );
+      }),
       bottomNavigationBar: Obx(() => BottomNavigationBar(
         backgroundColor: Colors.white,
         currentIndex: controller.currentTabIndex.value,
         onTap: controller.changeTab,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: controller.primaryColor,
+        selectedItemColor: const Color(0xFFD84040), // Consistent red color
         unselectedItemColor: Colors.grey,
         items: controller.bottomNavItems.map((item) => BottomNavigationBarItem(
           icon: Icon(item['icon']),
           label: item['label'],
         )).toList(),
       )),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
     );
   }
 
@@ -85,12 +166,12 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildStatsSection() {
     return Card(
-      color: Colors.white, // Set card color to white
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey[300]!, width: 1),
+        side: BorderSide(color: Colors.red, width: 1),
       ),
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -108,7 +189,7 @@ class HomeView extends GetView<HomeController> {
                   icon: LucideIcons.flame,
                   value: '${controller.consecutiveDays.value}',
                   label: 'Hari Berturut',
-                  color: Colors.red,
+                  color: const Color(0xFFD84040),
                 ),
                 _buildStatItem(
                   icon: LucideIcons.star,
@@ -122,7 +203,7 @@ class HomeView extends GetView<HomeController> {
             LinearProgressIndicator(
               value: controller.averageScore.value / 100,
               backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(controller.primaryColor),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFD84040)),
               minHeight: 8,
               borderRadius: BorderRadius.circular(4),
             ),
@@ -148,62 +229,55 @@ class HomeView extends GetView<HomeController> {
   }) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(height: 8),
         Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
       ],
     );
   }
 
-  Widget _buildQuickActions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Mulai Latihan Cepat',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+  Widget _buildQuickActionsGrid() {
+    return SliverGrid(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.3,
+      ),
+      delegate: SliverChildListDelegate([
+        _buildQuickActionCard(
+          icon: LucideIcons.briefcase,
+          title: 'Wawancara',
+          color: Colors.blue,
+          onTap: () => controller.navigateToPractice('Wawancara'),
         ),
-        const SizedBox(height: 12),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.5,
-          children: [
-            _buildQuickActionCard(
-              icon: LucideIcons.briefcase,
-              title: 'Wawancara',
-              color: Colors.blue,
-              borderColor: Colors.blue[200]!,
-              onTap: () => controller.navigateToPractice('Wawancara'),
-            ),
-            _buildQuickActionCard(
-              icon: LucideIcons.mic2,
-              title: 'Public Speaking',
-              color: Colors.green,
-              borderColor: Colors.green[200]!,
-              onTap: () => controller.navigateToPractice('Public Speaking'),
-            ),
-            _buildQuickActionCard(
-              icon: LucideIcons.smile,
-              title: 'Ekspresi',
-              color: Colors.orange,
-              borderColor: Colors.orange[200]!,
-              onTap: () => controller.navigateToPractice('Ekspresi'),
-            ),
-            _buildQuickActionCard(
-              icon: LucideIcons.plus,
-              title: 'Lainnya',
-              color: controller.primaryColor,
-              borderColor: Colors.grey[300]!,
-              onTap: controller.showPracticeDialog,
-            ),
-          ],
+        _buildQuickActionCard(
+          icon: LucideIcons.mic2,
+          title: 'Public Speaking',
+          color: Colors.green,
+          onTap: () => controller.navigateToPractice('Public Speaking'),
         ),
-      ],
+        _buildQuickActionCard(
+          icon: LucideIcons.smile,
+          title: 'Ekspresi',
+          color: Colors.orange,
+          onTap: () => controller.navigateToPractice('Ekspresi'),
+        ),
+        _buildQuickActionCard(
+          icon: LucideIcons.plus,
+          title: 'Lainnya',
+          color: const Color(0xFFD84040), // Consistent red
+          onTap: controller.showPracticeDialog,
+        ),
+      ]),
     );
   }
 
@@ -211,16 +285,15 @@ class HomeView extends GetView<HomeController> {
     required IconData icon,
     required String title,
     required Color color,
-    required Color borderColor,
     required VoidCallback onTap,
   }) {
     return Card(
-      color: Colors.white, // Set card color to white
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: borderColor, width: 1),
+        side: BorderSide(color: color.withOpacity(0.2), width: 1),
       ),
+      color: color.withOpacity(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
@@ -229,8 +302,15 @@ class HomeView extends GetView<HomeController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: color, size: 32),
-              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(height: 12),
               Text(
                 title,
                 style: TextStyle(
@@ -245,57 +325,53 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildLatestActivities() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Aktivitas Terakhir',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        const SizedBox(height: 12),
-        Obx(() => Column(
-          children: controller.activities.take(2).map((activity) =>
-            _buildActivityItem(activity)
-          ).toList(),
-        )),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: () => Get.toNamed('/activities'),
-          child: Text(
-            'Lihat Semua Aktivitas',
-            style: TextStyle(color: controller.primaryColor),
+  Widget _buildLatestActivitiesList() {
+    return Obx(() => SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildActivityItem(controller.activities[index]),
+            ),
+            childCount: controller.activities.take(2).length,
           ),
-        ),
-      ],
-    );
+        ));
   }
 
   Widget _buildActivityItem(Map<String, dynamic> activity) {
+    final color = _parseColor(activity['color']);
+
     return Card(
-      color: Colors.white, // Set card color to white
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 1,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: activity['color'].withOpacity(0.3), width: 1),
+        side: BorderSide(color: color.withOpacity(0.2), width: 1),
       ),
+      color: color.withOpacity(0.05),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: activity['color'].withOpacity(0.2),
+            color: color.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(activity['icon'], color: activity['color']),
+          child: Icon(activity['icon'], color: color),
         ),
         title: Text(activity['title']),
         subtitle: Text(activity['date']),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('${activity['score']}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            const Text('Skor'),
+            Text(
+              '${activity['score']}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const Text(
+              'Skor',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
           ],
         ),
         onTap: () => Get.toNamed('/activity-detail', arguments: activity),
@@ -304,57 +380,67 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildPracticeRecommendations() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Rekomendasi Untukmu',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        const SizedBox(height: 12),
-        Obx(() => Card(
-          color: Colors.white, // Set card color to white
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.grey[300]!, width: 1),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!, width: 1),
+      ),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Row(
               children: [
-                const Row(
-                  children: [
-                    Icon(LucideIcons.lightbulb, color: Colors.amber),
-                    SizedBox(width: 8),
-                    Text(
-                      'Berdasarkan analisis terakhir:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(LucideIcons.lightbulb, color: Colors.amber),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  'Kamu perlu meningkatkan kecepatan bicara dan mengurangi filler words',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: controller.practiceTypes.map((type) =>
-                    Chip(
-                      label: Text(type['title']),
-                      backgroundColor: controller.primaryColor.withOpacity(0.1),
-                      labelStyle: TextStyle(color: controller.primaryColor),
-                    )
-                  ).toList(),
+                const SizedBox(width: 8),
+                const Text(
+                  'Berdasarkan analisis terakhir:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-          ),
-        )),
-      ],
+            const SizedBox(height: 12),
+            Text(
+              'Kamu perlu meningkatkan kecepatan bicara dan mengurangi filler words',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 16),
+            Obx(() => Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: controller.practiceTypes.map((type) => Chip(
+                label: Text(type['title']),
+                backgroundColor: const Color(0xFFD84040).withOpacity(0.1),
+                labelStyle: const TextStyle(color: Color(0xFFD84040)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                    color: const Color(0xFFD84040).withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+              )).toList(),
+            )),
+          ],
+        ),
+      ),
     );
+  }
+
+  Color _parseColor(dynamic color) {
+    if (color is Color) return color;
+    if (color is String && color.startsWith('#')) {
+      return Color(int.parse(color.replaceAll('#', '0xFF')));
+    }
+    return const Color(0xFFD84040); // Default to red
   }
 }

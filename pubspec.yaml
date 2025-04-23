@@ -35,9 +35,11 @@ dependencies:
   flutter_launcher_icons: ^0.14.3
   get: ^4.7.2
   google_fonts: ^6.2.1
+  lottie: ^3.3.1
   lucide_icons: ^0.257.0
   path_provider: ^2.1.5
   permission_handler: ^12.0.0+1
+  persistent_bottom_nav_bar_v2: ^5.3.1
   syncfusion_flutter_charts: ^29.1.38
 
 dev_dependencies:

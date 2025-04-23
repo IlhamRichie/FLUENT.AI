@@ -12,11 +12,18 @@ class SertifikatView extends GetView<SertifikatController> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Sertifikat Saya'),
+        elevation: 0,
+        title: const Text(
+          'Sertifikat Saya',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.filter),
+            icon: const Icon(LucideIcons.filter, color: Colors.black),
             onPressed: _showFilterDialog,
           ),
         ],
@@ -42,7 +49,18 @@ class SertifikatView extends GetView<SertifikatController> {
           prefixIcon: const Icon(LucideIcons.search),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!),
           ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.blue),
+          ),
+          filled: true,
+          fillColor: Colors.white,
         ),
       ),
     );
@@ -83,7 +101,14 @@ class SertifikatView extends GetView<SertifikatController> {
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: cert['unlocked'] 
+              ? Colors.blue[100]! 
+              : Colors.grey[300]!,
+          width: 1.5,
+        ),
       ),
+      color: Colors.white,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () => controller.viewCertificateDetails(cert),
@@ -113,11 +138,21 @@ class SertifikatView extends GetView<SertifikatController> {
                       label: Text('${cert['score']}/100'),
                       backgroundColor: Colors.green.withOpacity(0.1),
                       labelStyle: const TextStyle(color: Colors.green),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: Colors.green.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
                     ),
                 ],
               ),
               const SizedBox(height: 12),
-              Text(cert['description']),
+              Text(
+                cert['description'],
+                style: TextStyle(color: Colors.grey[700]),
+              ),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -131,12 +166,16 @@ class SertifikatView extends GetView<SertifikatController> {
                   const Spacer(),
                   if (cert['unlocked']) ...[
                     IconButton(
-                      icon: const Icon(LucideIcons.download, size: 20),
+                      icon: Icon(LucideIcons.download, 
+                        size: 20, 
+                        color: Colors.blue[400]),
                       onPressed: () => controller.downloadCertificate(cert['id']),
                       tooltip: 'Unduh',
                     ),
                     IconButton(
-                      icon: const Icon(LucideIcons.share2, size: 20),
+                      icon: Icon(LucideIcons.share2, 
+                        size: 20, 
+                        color: Colors.blue[400]),
                       onPressed: () => controller.shareCertificate(cert['id']),
                       tooltip: 'Bagikan',
                     ),
@@ -152,22 +191,54 @@ class SertifikatView extends GetView<SertifikatController> {
 
   void _showFilterDialog() {
     Get.dialog(
-      AlertDialog(
-        title: const Text('Filter Sertifikat'),
-        content: Obx(() => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: controller.filters.map((filter) => 
-            RadioListTile<String>(
-              title: Text(filter),
-              value: filter,
-              groupValue: controller.selectedFilter.value,
-              onChanged: (value) {
-                controller.changeFilter(value!);
-                Get.back();
-              },
-            ),
-          ).toList(),
-        )),
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Filter Sertifikat',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Obx(() => Column(
+                children: controller.filters.map((filter) => 
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(
+                        color: controller.selectedFilter.value == filter
+                          ? Colors.blue
+                          : Colors.grey[300]!,
+                        width: 1.5,
+                      ),
+                    ),
+                    color: Colors.white,
+                    child: ListTile(
+                      title: Text(filter),
+                      trailing: controller.selectedFilter.value == filter
+                        ? const Icon(Icons.check, color: Colors.blue)
+                        : null,
+                      onTap: () {
+                        controller.changeFilter(filter);
+                        Get.back();
+                      },
+                    ),
+                  ),
+                ).toList(),
+              )),
+            ],
+          ),
+        ),
       ),
     );
   }

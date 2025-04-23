@@ -14,6 +14,7 @@ abstract class Routes {
   static const PROGRES = _Paths.PROGRES;
   static const SERTIFIKAT = _Paths.SERTIFIKAT;
   static const PROFIL = _Paths.PROFIL;
+  static const NAVBAR = _Paths.NAVBAR;
 }
 
 abstract class _Paths {
@@ -29,4 +30,5 @@ abstract class _Paths {
   static const PROGRES = '/progres';
   static const SERTIFIKAT = '/sertifikat';
   static const PROFIL = '/profil';
+  static const NAVBAR = '/navbar';
 }

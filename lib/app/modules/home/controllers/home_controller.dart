@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeController extends GetxController {
+  final RxBool isLoading = false.obs;
+
   final Color primaryColor = const Color(0xFFD84040);
   final RxInt currentTabIndex = 0.obs;
 
@@ -157,5 +159,27 @@ class HomeController extends GetxController {
         ],
       ),
     );
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Simulate loading data when controller initializes
+    loadData();
+  }
+
+  // Simulate loading data
+  Future<void> loadData() async {
+    isLoading.value = true;
+    await Future.delayed(
+        const Duration(seconds: 1)); // Simulate network request
+    isLoading.value = false;
+  }
+
+  // Refresh data
+  Future<void> refreshData() async {
+    isLoading.value = true;
+    await Future.delayed(const Duration(seconds: 1)); // Simulate refresh
+    isLoading.value = false;
   }
 }

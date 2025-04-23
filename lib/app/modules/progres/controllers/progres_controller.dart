@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class ProgresController extends GetxController {
+  // Loading state
+  final RxBool isLoading = false.obs;
+
   // Data for progress charts
   final RxList<Map<String, dynamic>> weeklyProgress = <Map<String, dynamic>>[
     {"day": "Sen", "score": 65, "expression": 70, "narrative": 60},
@@ -92,10 +95,31 @@ class ProgresController extends GetxController {
   final RxString selectedChartData = 'Skor'.obs;
   final List<String> chartDataOptions = ['Skor', 'Ekspresi', 'Narasi'];
 
+  @override
+  void onInit() {
+    super.onInit();
+    // Simulate loading data when controller initializes
+    loadData();
+  }
+
+  // Simulate loading data
+  Future<void> loadData() async {
+    isLoading.value = true;
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network request
+    isLoading.value = false;
+  }
+
+  // Refresh data
+  Future<void> refreshData() async {
+    isLoading.value = true;
+    await Future.delayed(const Duration(seconds: 1)); // Simulate refresh
+    isLoading.value = false;
+  }
+
   // Get the current progress data based on selected timeframe
   List<Map<String, dynamic>> get currentProgressData {
     return selectedTimeframe.value == 'Mingguan' 
-      ? weeklyProgress 
+      ? weeklyProgress
       : monthlyProgress;
   }
 
@@ -142,7 +166,7 @@ class ProgresController extends GetxController {
       case 'Narasi':
         return Colors.green;
       default:
-        return Colors.blue;
+        return const Color(0xFFD84040); // Using the red color from design
     }
   }
 
