@@ -1,3 +1,4 @@
+import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -72,6 +73,7 @@ class LatihanView extends GetView<LatihanController> {
           );
         }),
       ),
+      bottomNavigationBar: const NavbarView(),
     );
   }
 

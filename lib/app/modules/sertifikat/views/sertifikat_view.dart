@@ -1,3 +1,4 @@
+import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart';
 import 'package:fluent_ai/app/modules/sertifikat/controllers/sertifikat_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -36,6 +37,7 @@ class SertifikatView extends GetView<SertifikatController> {
           ),
         ],
       ),
+      bottomNavigationBar: const NavbarView(),
     );
   }
 
@@ -102,9 +104,7 @@ class SertifikatView extends GetView<SertifikatController> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: cert['unlocked'] 
-              ? Colors.blue[100]! 
-              : Colors.grey[300]!,
+          color: cert['unlocked'] ? Colors.blue[100]! : Colors.grey[300]!,
           width: 1.5,
         ),
       ),
@@ -166,16 +166,15 @@ class SertifikatView extends GetView<SertifikatController> {
                   const Spacer(),
                   if (cert['unlocked']) ...[
                     IconButton(
-                      icon: Icon(LucideIcons.download, 
-                        size: 20, 
-                        color: Colors.blue[400]),
-                      onPressed: () => controller.downloadCertificate(cert['id']),
+                      icon: Icon(LucideIcons.download,
+                          size: 20, color: Colors.blue[400]),
+                      onPressed: () =>
+                          controller.downloadCertificate(cert['id']),
                       tooltip: 'Unduh',
                     ),
                     IconButton(
-                      icon: Icon(LucideIcons.share2, 
-                        size: 20, 
-                        color: Colors.blue[400]),
+                      icon: Icon(LucideIcons.share2,
+                          size: 20, color: Colors.blue[400]),
                       onPressed: () => controller.shareCertificate(cert['id']),
                       tooltip: 'Bagikan',
                     ),
@@ -209,33 +208,36 @@ class SertifikatView extends GetView<SertifikatController> {
               ),
               const SizedBox(height: 16),
               Obx(() => Column(
-                children: controller.filters.map((filter) => 
-                  Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(
-                        color: controller.selectedFilter.value == filter
-                          ? Colors.blue
-                          : Colors.grey[300]!,
-                        width: 1.5,
-                      ),
-                    ),
-                    color: Colors.white,
-                    child: ListTile(
-                      title: Text(filter),
-                      trailing: controller.selectedFilter.value == filter
-                        ? const Icon(Icons.check, color: Colors.blue)
-                        : null,
-                      onTap: () {
-                        controller.changeFilter(filter);
-                        Get.back();
-                      },
-                    ),
-                  ),
-                ).toList(),
-              )),
+                    children: controller.filters
+                        .map(
+                          (filter) => Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                color: controller.selectedFilter.value == filter
+                                    ? Colors.blue
+                                    : Colors.grey[300]!,
+                                width: 1.5,
+                              ),
+                            ),
+                            color: Colors.white,
+                            child: ListTile(
+                              title: Text(filter),
+                              trailing: controller.selectedFilter.value ==
+                                      filter
+                                  ? const Icon(Icons.check, color: Colors.blue)
+                                  : null,
+                              onTap: () {
+                                controller.changeFilter(filter);
+                                Get.back();
+                              },
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  )),
             ],
           ),
         ),

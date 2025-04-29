@@ -1,3 +1,4 @@
+import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart';
 import 'package:fluent_ai/app/modules/profil/controllers/profil_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,6 +42,7 @@ class ProfilView extends GetView<ProfilController> {
           ],
         ),
       ),
+      bottomNavigationBar: const NavbarView(),
     );
   }
 

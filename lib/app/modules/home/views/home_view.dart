@@ -1,3 +1,5 @@
+import 'package:fluent_ai/app/modules/latihan/controllers/latihan_controller.dart';
+import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -24,7 +26,8 @@ class HomeView extends GetView<HomeController> {
         actions: [
           IconButton(
             icon: Icon(LucideIcons.bell, color: Colors.grey[700]),
-            onPressed: () => Get.snackbar('Notifikasi', 'Fitur notifikasi akan datang!'),
+            onPressed: () =>
+                Get.snackbar('Notifikasi', 'Fitur notifikasi akan datang!'),
           ),
         ],
       ),
@@ -37,7 +40,7 @@ class HomeView extends GetView<HomeController> {
             ),
           );
         }
-        
+
         return CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
@@ -115,18 +118,7 @@ class HomeView extends GetView<HomeController> {
           ],
         );
       }),
-      bottomNavigationBar: Obx(() => BottomNavigationBar(
-        backgroundColor: Colors.white,
-        currentIndex: controller.currentTabIndex.value,
-        onTap: controller.changeTab,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFFD84040), // Consistent red color
-        unselectedItemColor: Colors.grey,
-        items: controller.bottomNavItems.map((item) => BottomNavigationBarItem(
-          icon: Icon(item['icon']),
-          label: item['label'],
-        )).toList(),
-      )),
+      bottomNavigationBar: const NavbarView(),
     );
   }
 
@@ -146,12 +138,12 @@ class HomeView extends GetView<HomeController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Obx(() => Text(
-          'Hi, ${controller.username.value}! 👋',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        )),
+              'Hi, ${controller.username.value}! 👋',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            )),
         const SizedBox(height: 8),
         const Text(
           'Siap latihan hari ini?',
@@ -203,7 +195,8 @@ class HomeView extends GetView<HomeController> {
             LinearProgressIndicator(
               value: controller.averageScore.value / 100,
               backgroundColor: Colors.grey[200],
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFD84040)),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(Color(0xFFD84040)),
               minHeight: 8,
               borderRadius: BorderRadius.circular(4),
             ),
@@ -274,8 +267,9 @@ class HomeView extends GetView<HomeController> {
         _buildQuickActionCard(
           icon: LucideIcons.plus,
           title: 'Lainnya',
-          color: const Color(0xFFD84040), // Consistent red
-          onTap: controller.showPracticeDialog,
+          color: const Color(0xFFD84040),
+          onTap: () => controller
+              .navigateToLatihan(), // Dengan arrow function jika perlu parameter
         ),
       ]),
     );
@@ -415,21 +409,25 @@ class HomeView extends GetView<HomeController> {
             ),
             const SizedBox(height: 16),
             Obx(() => Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: controller.practiceTypes.map((type) => Chip(
-                label: Text(type['title']),
-                backgroundColor: const Color(0xFFD84040).withOpacity(0.1),
-                labelStyle: const TextStyle(color: Color(0xFFD84040)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(
-                    color: const Color(0xFFD84040).withOpacity(0.3),
-                    width: 1,
-                  ),
-                ),
-              )).toList(),
-            )),
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: controller.practiceTypes
+                      .map((type) => Chip(
+                            label: Text(type['title']),
+                            backgroundColor:
+                                const Color(0xFFD84040).withOpacity(0.1),
+                            labelStyle:
+                                const TextStyle(color: Color(0xFFD84040)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                color: const Color(0xFFD84040).withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                )),
           ],
         ),
       ),

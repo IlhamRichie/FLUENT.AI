@@ -1,3 +1,4 @@
+import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart';
 import 'package:fluent_ai/app/modules/progres/controllers/progres_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,8 +26,9 @@ class ProgresView extends GetView<ProgresController> {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.share2, size: 20),
-            onPressed: () => Get.snackbar('Berbagi', 'Fitur berbagi progres akan datang!'),
+            icon: const Icon(LucideIcons.refreshCw, size: 20),
+            onPressed: controller.refreshData,
+            tooltip: 'Refresh',
           ),
         ],
       ),
@@ -39,7 +41,7 @@ class ProgresView extends GetView<ProgresController> {
             ),
           );
         }
-        
+
         return CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
@@ -50,11 +52,11 @@ class ProgresView extends GetView<ProgresController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildTimeframeSelector(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     _buildProgressChart(),
                     const SizedBox(height: 24),
                     _buildSectionHeader('Metrik Kemampuan'),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -70,7 +72,7 @@ class ProgresView extends GetView<ProgresController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildSectionHeader('Area Perbaikan'),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -86,7 +88,7 @@ class ProgresView extends GetView<ProgresController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildSectionHeader('Pencapaian & Badge'),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -101,6 +103,7 @@ class ProgresView extends GetView<ProgresController> {
           ],
         );
       }),
+      bottomNavigationBar: const NavbarView(),
     );
   }
 
@@ -116,84 +119,110 @@ class ProgresView extends GetView<ProgresController> {
   }
 
   Widget _buildTimeframeSelector() {
-    return Obx(() => Row(
-          children: [
-            Expanded(
-              child: SegmentedButton<String>(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.selected)) {
-                        return const Color(0xFFD84040).withOpacity(0.2);
-                      }
-                      return Colors.white;
-                    },
-                  ),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                segments: controller.timeframes
-                    .map((timeframe) => ButtonSegment<String>(
-                          value: timeframe,
-                          label: Text(
-                            timeframe,
-                            style: TextStyle(
-                              color: controller.selectedTimeframe.value == timeframe
-                                  ? const Color(0xFFD84040)
-                                  : Colors.grey[700],
+    return Obx(() => Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: Colors.grey[300]!,
+              width: 1,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: SegmentedButton<String>(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                              if (states.contains(MaterialState.selected)) {
+                                return const Color(0xFFD84040).withOpacity(0.2);
+                              }
+                              return Colors.transparent;
+                            },
+                          ),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                        ))
-                    .toList(),
-                selected: {controller.selectedTimeframe.value},
-                onSelectionChanged: (Set<String> newSelection) {
-                  controller.changeTimeframe(newSelection.first);
-                },
-                showSelectedIcon: false,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: SegmentedButton<String>(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.selected)) {
-                        return const Color(0xFFD84040).withOpacity(0.2);
-                      }
-                      return Colors.white;
-                    },
-                  ),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                        ),
+                        segments: controller.timeframes
+                            .map((timeframe) => ButtonSegment<String>(
+                                  value: timeframe,
+                                  label: Text(
+                                    timeframe,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: controller.selectedTimeframe.value ==
+                                              timeframe
+                                          ? const Color(0xFFD84040)
+                                          : Colors.grey[700],
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                        selected: {controller.selectedTimeframe.value},
+                        onSelectionChanged: (Set<String> newSelection) {
+                          controller.changeTimeframe(newSelection.first);
+                        },
+                        showSelectedIcon: false,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                segments: controller.chartDataOptions
-                    .map((data) => ButtonSegment<String>(
-                          value: data,
-                          label: Text(
-                            data,
-                            style: TextStyle(
-                              color: controller.selectedChartData.value == data
-                                  ? const Color(0xFFD84040)
-                                  : Colors.grey[700],
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SegmentedButton<String>(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                              if (states.contains(MaterialState.selected)) {
+                                return const Color(0xFFD84040).withOpacity(0.2);
+                              }
+                              return Colors.transparent;
+                            },
+                          ),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                        ))
-                    .toList(),
-                selected: {controller.selectedChartData.value},
-                onSelectionChanged: (Set<String> newSelection) {
-                  controller.changeChartData(newSelection.first);
-                },
-                showSelectedIcon: false,
-              ),
+                        ),
+                        segments: controller.chartDataOptions
+                            .map((data) => ButtonSegment<String>(
+                                  value: data,
+                                  label: Text(
+                                    data,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: controller.selectedChartData.value == data
+                                          ? const Color(0xFFD84040)
+                                          : Colors.grey[700],
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                        selected: {controller.selectedChartData.value},
+                        onSelectionChanged: (Set<String> newSelection) {
+                          controller.changeChartData(newSelection.first);
+                        },
+                        showSelectedIcon: false,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ));
   }
 
@@ -203,11 +232,11 @@ class ProgresView extends GetView<ProgresController> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: Colors.grey[200]!,
+              color: const Color(0xFFD84040).withOpacity(0.2),
               width: 1,
             ),
           ),
-          color: Colors.white,
+          color: const Color(0xFFD84040).withOpacity(0.05),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -216,20 +245,31 @@ class ProgresView extends GetView<ProgresController> {
                 Text(
                   controller.chartTitle,
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     fontSize: 16,
+                    color: Colors.black,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 SizedBox(
                   height: 250,
                   child: SfCartesianChart(
-                    primaryXAxis: CategoryAxis(),
+                    primaryXAxis: CategoryAxis(
+                      labelStyle: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 10,
+                      ),
+                    ),
                     primaryYAxis: NumericAxis(
                       minimum: 0,
                       maximum: controller.maxChartValue,
                       interval: 20,
+                      labelStyle: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 10,
+                      ),
                     ),
+                    plotAreaBorderColor: Colors.transparent,
                     series: <CartesianSeries>[
                       LineSeries<Map<String, dynamic>, String>(
                         dataSource: controller.currentProgressData,
@@ -244,17 +284,24 @@ class ProgresView extends GetView<ProgresController> {
                           shape: DataMarkerType.circle,
                           borderWidth: 2,
                           borderColor: Colors.white,
+                          color: Color(0xFFD84040),
                         ),
                         dataLabelSettings: const DataLabelSettings(
                           isVisible: true,
-                          textStyle: TextStyle(fontSize: 10),
+                          textStyle: TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFFD84040),
+                          ),
                         ),
                       ),
                     ],
                     tooltipBehavior: TooltipBehavior(
                       enable: true,
                       color: const Color(0xFFD84040),
-                      textStyle: const TextStyle(color: Colors.white),
+                      textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),
@@ -267,10 +314,10 @@ class ProgresView extends GetView<ProgresController> {
   Widget _buildSkillMetricsGrid() {
     return Obx(() => SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 1,
+            crossAxisCount: 2,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.5,
+            childAspectRatio: 1.6,
           ),
           delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -285,7 +332,8 @@ class ProgresView extends GetView<ProgresController> {
         ));
   }
 
-  Widget _buildSkillMetricCard({required String title, required dynamic value}) {
+  Widget _buildSkillMetricCard(
+      {required String title, required dynamic value}) {
     String displayTitle = title.replaceAll('_', ' ').capitalizeFirst!;
     IconData icon;
     Color color;
@@ -329,10 +377,10 @@ class ProgresView extends GetView<ProgresController> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -343,17 +391,17 @@ class ProgresView extends GetView<ProgresController> {
             Text(
               displayTitle,
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
                 color: color,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               title == 'filler_words' ? '$value/menit' : '$value/100',
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
                 color: color,
               ),
             ),
@@ -392,7 +440,8 @@ class ProgresView extends GetView<ProgresController> {
       Colors.green,
       Colors.purple,
     ];
-    final color = colors[controller.improvementAreas.indexOf(area) % colors.length];
+    final color =
+        colors[controller.improvementAreas.indexOf(area) % colors.length];
 
     return Card(
       elevation: 0,
@@ -412,14 +461,14 @@ class ProgresView extends GetView<ProgresController> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: color.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     LucideIcons.alertCircle,
-                    size: 20,
+                    size: 18,
                     color: color,
                   ),
                 ),
@@ -427,7 +476,7 @@ class ProgresView extends GetView<ProgresController> {
                 Text(
                   area['area'],
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     fontSize: 16,
                     color: color,
                   ),
@@ -437,9 +486,13 @@ class ProgresView extends GetView<ProgresController> {
             const SizedBox(height: 12),
             Text(
               area['description'],
-              style: TextStyle(color: Colors.grey[700]),
+              style: const TextStyle(
+                color: Colors.black54,
+                height: 1.5,
+                fontSize: 14,
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             LinearProgressIndicator(
               value: area['progress'],
               backgroundColor: Colors.grey[200],
@@ -452,11 +505,13 @@ class ProgresView extends GetView<ProgresController> {
               children: [
                 Icon(LucideIcons.lightbulb, size: 16, color: color),
                 const SizedBox(width: 8),
-                Text(
-                  'Saran: ${area['suggestion']}',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
+                Expanded(
+                  child: Text(
+                    'Saran: ${area['suggestion']}',
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
@@ -470,10 +525,10 @@ class ProgresView extends GetView<ProgresController> {
   Widget _buildBadgesGrid() {
     return Obx(() => SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
+            crossAxisCount: 3,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.2,
+            childAspectRatio: 0.9,
           ),
           delegate: SliverChildBuilderDelegate(
             (context, index) => _buildBadgeCard(controller.badges[index]),
@@ -483,7 +538,7 @@ class ProgresView extends GetView<ProgresController> {
   }
 
   Widget _buildBadgeCard(Map<String, dynamic> badge) {
-    final color = badge['unlocked'] ? const Color(0xFFD84040) : Colors.grey;
+    final color = badge['unlocked'] ? const Color(0xFFD84040) : Colors.grey[400]!;
 
     return Card(
       elevation: 0,
@@ -496,19 +551,19 @@ class ProgresView extends GetView<ProgresController> {
       ),
       color: color.withOpacity(0.05),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 badge['icon'],
-                size: 24,
+                size: 22,
                 color: color,
               ),
             ),
@@ -517,9 +572,12 @@ class ProgresView extends GetView<ProgresController> {
               badge['title'],
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
                 color: color,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             if (badge['unlocked']) ...[
               const SizedBox(height: 4),
@@ -528,6 +586,22 @@ class ProgresView extends GetView<ProgresController> {
                 style: TextStyle(
                   fontSize: 10,
                   color: color.withOpacity(0.7),
+                ),
+              ),
+            ] else ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'Kunci',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
             ],

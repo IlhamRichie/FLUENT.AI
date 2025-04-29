@@ -105,42 +105,12 @@ class HomeController extends GetxController {
     },
   ].obs;
 
-  // Bottom navigation
-  final List<Map<String, dynamic>> bottomNavItems = [
-    {
-      'label': 'Home',
-      'icon': LucideIcons.home,
-      'route': '/home',
-    },
-    {
-      'label': 'Latihan',
-      'icon': LucideIcons.mic2,
-      'route': '/latihan',
-    },
-    {
-      'label': 'Progres',
-      'icon': LucideIcons.trendingUp,
-      'route': '/progres',
-    },
-    {
-      'label': 'Sertifikat',
-      'icon': LucideIcons.award,
-      'route': '/sertifikat',
-    },
-    {
-      'label': 'Akun',
-      'icon': LucideIcons.user,
-      'route': '/profil',
-    },
-  ];
-
-  void changeTab(int index) {
-    currentTabIndex.value = index;
-    Get.toNamed(bottomNavItems[index]['route']);
-  }
-
   void navigateToPractice(String type) {
     Get.toNamed('/latihan-detail', arguments: {'type': type});
+  }
+
+  void navigateToLatihan() {
+    Get.toNamed('/latihan');
   }
 
   void showPracticeDialog() {
