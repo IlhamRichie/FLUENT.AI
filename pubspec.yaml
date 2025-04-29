@@ -39,6 +39,7 @@ dependencies:
   lucide_icons: ^0.257.0
   path_provider: ^2.1.5
   permission_handler: ^12.0.0+1
+  persistent_bottom_nav_bar: ^6.2.1
   persistent_bottom_nav_bar_v2: ^5.3.1
   syncfusion_flutter_charts: ^29.1.38
 
@@ -50,7 +51,7 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/iconlauncher.png"
+  image_path: "assets/images/launcher.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -78,7 +78,7 @@ class RegisterView extends GetView<RegisterController> {
                       const SizedBox(height: 10),
                       Obx(() => DropdownButtonFormField<String>(
                         value: controller.selectedGender.value,
-                        decoration: InputDecoration(
+                        decoration:        InputDecoration(
                           labelText: "Jenis Kelamin",
                           hintText: "Pilih jenis kelamin kamu",
                           border: OutlineInputBorder(
