@@ -17,98 +17,192 @@ class SertifikatView extends GetView<SertifikatController> {
         title: const Text(
           'Sertifikat Saya',
           style: TextStyle(
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
             color: Colors.black,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.filter, color: Colors.black),
+            icon: const Icon(LucideIcons.filter, size: 20),
             onPressed: _showFilterDialog,
+            tooltip: 'Filter',
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _buildSearchBar(),
-          Expanded(
-            child: Obx(() => _buildCertificateList()),
-          ),
-        ],
-      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD84040)),
+            ),
+          );
+        }
+
+        return CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: _buildSearchBar(),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _buildCategoryFilter(),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSectionHeader('Daftar Sertifikat'),
+            ),
+            _buildCertificateList(),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 24),
+            ),
+          ],
+        );
+      }),
       bottomNavigationBar: const NavbarView(),
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.all(16),
-      child: TextField(
-        onChanged: (value) => controller.searchQuery.value = value,
-        decoration: InputDecoration(
-          hintText: 'Cari sertifikat...',
-          prefixIcon: const Icon(LucideIcons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[300]!),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[300]!),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.blue),
-          ),
-          filled: true,
-          fillColor: Colors.white,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
         ),
       ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return TextField(
+      onChanged: (value) => controller.searchQuery.value = value,
+      decoration: InputDecoration(
+        hintText: 'Cari sertifikat...',
+        prefixIcon: const Icon(LucideIcons.search, size: 18),
+        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFD84040)),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildCategoryFilter() {
+    return SizedBox(
+      height: 40,
+      child: Obx(
+        () => ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: controller.filters.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final filter = controller.filters[index];
+            return _buildFilterChip(
+              filter,
+              controller.selectedFilter.value == filter,
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, bool selected) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: (_) => controller.changeFilter(label),
+      selectedColor: const Color(0xFFD84040).withOpacity(0.2),
+      backgroundColor: Colors.grey[200],
+      labelStyle: TextStyle(
+        color: selected ? const Color(0xFFD84040) : Colors.grey[700],
+        fontWeight: FontWeight.w500,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: selected ? const Color(0xFFD84040) : Colors.grey[300]!,
+          width: 1,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     );
   }
 
   Widget _buildCertificateList() {
     if (controller.filteredCertificates.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.award, size: 48, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              controller.selectedFilter.value == 'Terkunci'
-                  ? 'Tidak ada sertifikat terkunci'
-                  : 'Tidak ada sertifikat ditemukan',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ],
+      return SliverFillRemaining(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                LucideIcons.award,
+                size: 48,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                controller.selectedFilter.value == 'Terkunci'
+                    ? 'Tidak ada sertifikat terkunci'
+                    : 'Tidak ada sertifikat ditemukan',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return ListView.builder(
+    return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: controller.filteredCertificates.length,
-      itemBuilder: (context, index) {
-        final cert = controller.filteredCertificates[index];
-        return _buildCertificateCard(cert);
-      },
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final cert = controller.filteredCertificates[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildCertificateCard(cert),
+            );
+          },
+          childCount: controller.filteredCertificates.length,
+        ),
+      ),
     );
   }
 
   Widget _buildCertificateCard(Map<String, dynamic> cert) {
+    final color = controller.parseColor(cert['color']);
+    final bgColor = color.withOpacity(0.05);
+    final isUnlocked = cert['unlocked'];
+
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: cert['unlocked'] ? Colors.blue[100]! : Colors.grey[300]!,
-          width: 1.5,
-        ),
+        side: BorderSide(color: color.withOpacity(0.2), width: 1),
       ),
-      color: Colors.white,
+      color: bgColor,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () => controller.viewCertificateDetails(cert),
@@ -119,30 +213,43 @@ class SertifikatView extends GetView<SertifikatController> {
             children: [
               Row(
                 children: [
-                  Icon(
-                    cert['unlocked'] ? LucideIcons.award : LucideIcons.lock,
-                    color: cert['unlocked'] ? Colors.amber : Colors.grey,
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      isUnlocked ? LucideIcons.award : LucideIcons.lock,
+                      color: color,
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       cert['title'],
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: color,
+                        fontSize: 15,
                       ),
                     ),
                   ),
-                  if (cert['unlocked'] && cert['score'] != null)
-                    Chip(
-                      label: Text('${cert['score']}/100'),
-                      backgroundColor: Colors.green.withOpacity(0.1),
-                      labelStyle: const TextStyle(color: Colors.green),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color: Colors.green.withOpacity(0.3),
-                          width: 1,
+                  if (isUnlocked && cert['score'] != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '${cert['score']}/100',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: color,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -151,30 +258,39 @@ class SertifikatView extends GetView<SertifikatController> {
               const SizedBox(height: 12),
               Text(
                 cert['description'],
-                style: TextStyle(color: Colors.grey[700]),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.black54,
+                ),
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Text(
                     cert['date'],
-                    style: TextStyle(
-                      color: Colors.grey[600],
+                    style: const TextStyle(
                       fontSize: 12,
+                      color: Colors.black54,
                     ),
                   ),
                   const Spacer(),
-                  if (cert['unlocked']) ...[
+                  if (isUnlocked) ...[
                     IconButton(
-                      icon: Icon(LucideIcons.download,
-                          size: 20, color: Colors.blue[400]),
+                      icon: Icon(
+                        LucideIcons.download,
+                        size: 18,
+                        color: color,
+                      ),
                       onPressed: () =>
                           controller.downloadCertificate(cert['id']),
                       tooltip: 'Unduh',
                     ),
                     IconButton(
-                      icon: Icon(LucideIcons.share2,
-                          size: 20, color: Colors.blue[400]),
+                      icon: Icon(
+                        LucideIcons.share2,
+                        size: 18,
+                        color: color,
+                      ),
                       onPressed: () => controller.shareCertificate(cert['id']),
                       tooltip: 'Bagikan',
                     ),
@@ -198,46 +314,65 @@ class SertifikatView extends GetView<SertifikatController> {
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Filter Sertifikat',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
+                  color: Colors.black,
                 ),
               ),
               const SizedBox(height: 16),
-              Obx(() => Column(
-                    children: controller.filters
-                        .map(
-                          (filter) => Card(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(
-                                color: controller.selectedFilter.value == filter
-                                    ? Colors.blue
-                                    : Colors.grey[300]!,
-                                width: 1.5,
-                              ),
-                            ),
-                            color: Colors.white,
-                            child: ListTile(
-                              title: Text(filter),
-                              trailing: controller.selectedFilter.value ==
-                                      filter
-                                  ? const Icon(Icons.check, color: Colors.blue)
-                                  : null,
-                              onTap: () {
-                                controller.changeFilter(filter);
-                                Get.back();
-                              },
+              Obx(
+                () => Column(
+                  children: controller.filters
+                      .map(
+                        (filter) => Card(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(
+                              color:
+                                  controller.selectedFilter.value == filter
+                                      ? const Color(0xFFD84040)
+                                      : Colors.grey[300]!,
+                              width: 1,
                             ),
                           ),
-                        )
-                        .toList(),
-                  )),
+                          color: controller.selectedFilter.value == filter
+                              ? const Color(0xFFD84040).withOpacity(0.05)
+                              : Colors.white,
+                          child: ListTile(
+                            title: Text(
+                              filter,
+                              style: TextStyle(
+                                color: controller.selectedFilter.value ==
+                                        filter
+                                    ? const Color(0xFFD84040)
+                                    : Colors.black,
+                              ),
+                            ),
+                            trailing:
+                                controller.selectedFilter.value == filter
+                                    ? const Icon(
+                                        LucideIcons.check,
+                                        color: Color(0xFFD84040),
+                                        size: 18,
+                                      )
+                                    : null,
+                            onTap: () {
+                              controller.changeFilter(filter);
+                              Get.back();
+                            },
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
             ],
           ),
         ),

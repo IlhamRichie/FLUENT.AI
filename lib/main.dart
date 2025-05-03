@@ -16,10 +16,9 @@ void main() async {
       debugShowCheckedModeBanner: false,
       title: "Fluent",
       initialRoute: AppPages.INITIAL,
-      initialBinding: NavbarBinding(), // Add this line
+      initialBinding: NavbarBinding(),
       getPages: AppPages.routes,
       theme: ThemeData(
-        // Gunakan TextTheme langsung tanpa Get.context
         textTheme: GoogleFonts.montserratTextTheme(
           const TextTheme(
             displayLarge: TextStyle(fontSize: 96, fontWeight: FontWeight.w300),

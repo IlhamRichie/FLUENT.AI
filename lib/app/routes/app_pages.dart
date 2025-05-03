@@ -22,6 +22,8 @@ import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/sertifikat/bindings/sertifikat_binding.dart';
 import '../modules/sertifikat/views/sertifikat_view.dart';
+import '../modules/sertifikat_detail/bindings/sertifikat_detail_binding.dart';
+import '../modules/sertifikat_detail/views/sertifikat_detail_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 
@@ -92,6 +94,11 @@ class AppPages {
       name: _Paths.NAVBAR,
       page: () => const NavbarView(),
       binding: NavbarBinding(),
+    ),
+    GetPage(
+      name: _Paths.SERTIFIKAT_DETAIL,
+      page: () => const SertifikatDetailView(),
+      binding: SertifikatDetailBinding(),
     ),
   ];
 }

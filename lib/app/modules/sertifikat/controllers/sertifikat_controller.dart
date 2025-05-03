@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SertifikatController extends GetxController {
+  // Loading state
+  final RxBool isLoading = true.obs;
+  
   // Certificate data
   final RxList<Map<String, dynamic>> certificates = <Map<String, dynamic>>[
     {
@@ -10,9 +13,10 @@ class SertifikatController extends GetxController {
       'description': 'Menyelesaikan 10 sesi latihan Public Speaking dengan skor rata-rata di atas 85',
       'date': '25 April 2025',
       'score': 87,
-      'image': 'assets/images/cert1.png',
+      'image': 'assets/images/logo FLUENT.png',
       'unlocked': true,
       'shareable': true,
+      'color': '#D84040',  // Added color field
     },
     {
       'id': 'CERT-002',
@@ -20,9 +24,10 @@ class SertifikatController extends GetxController {
       'description': 'Menyelesaikan 5 simulasi wawancara kerja dengan skor rata-rata di atas 80',
       'date': '20 April 2025',
       'score': 82,
-      'image': 'assets/images/cert2.png',
+      'image': 'assets/images/logo FLUENT.png',
       'unlocked': true,
       'shareable': true,
+      'color': '#3A7BD5',  // Added color field
     },
     {
       'id': 'CERT-003',
@@ -30,9 +35,10 @@ class SertifikatController extends GetxController {
       'description': 'Latihan 7 hari berturut-turut tanpa jeda',
       'date': '18 April 2025',
       'score': null,
-      'image': 'assets/images/cert3.png',
+      'image': 'assets/images/logo FLUENT.png',
       'unlocked': true,
       'shareable': true,
+      'color': '#00B09B',  // Added color field
     },
     {
       'id': 'CERT-004',
@@ -40,9 +46,10 @@ class SertifikatController extends GetxController {
       'description': 'Mencapai skor ekspresi di atas 90 dalam 3 sesi berturut-turut',
       'date': 'Locked',
       'score': null,
-      'image': 'assets/images/cert_locked.png',
+      'image': 'assets/images/logo FLUENT.png',
       'unlocked': false,
       'shareable': false,
+      'color': '#6A3093',  // Added color field
     },
   ].obs;
 
@@ -52,6 +59,20 @@ class SertifikatController extends GetxController {
 
   // Search functionality
   final RxString searchQuery = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Simulate loading data
+    loadCertificates();
+  }
+
+  // Simulate loading certificates
+  Future<void> loadCertificates() async {
+    isLoading.value = true;
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    isLoading.value = false;
+  }
 
   // Get filtered certificates based on selection and search
   List<Map<String, dynamic>> get filteredCertificates {
@@ -99,5 +120,14 @@ class SertifikatController extends GetxController {
   // View certificate details
   void viewCertificateDetails(Map<String, dynamic> certificate) {
     Get.toNamed('/certificate-detail', arguments: certificate);
+  }
+
+  // Helper function to parse color from hex string
+  Color parseColor(String hexColor) {
+    try {
+      return Color(int.parse(hexColor.replaceAll('#', '0xFF')));
+    } catch (e) {
+      return const Color(0xFFD84040); // Default color
+    }
   }
 }

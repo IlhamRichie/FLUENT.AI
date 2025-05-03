@@ -10,35 +10,57 @@ class ProfilView extends GetView<ProfilController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Lighter background for contrast
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'Profil Saya',
           style: TextStyle(
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
             color: Colors.black,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.logOut, color: Colors.black),
+            icon: const Icon(LucideIcons.logOut, size: 20),
             onPressed: controller.logout,
             tooltip: 'Logout',
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildProfileHeader(),
-            const SizedBox(height: 24),
-            _buildStatsSection(),
-            const SizedBox(height: 24),
-            _buildSettingsSection(),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 8),
+            ),
+            SliverToBoxAdapter(
+              child: _buildProfileHeader(),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 24),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSectionHeader('Statistik Saya'),
+            ),
+            SliverToBoxAdapter(
+              child: _buildStatsSection(),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 24),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSectionHeader('Pengaturan'),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.only(bottom: 24),
+              sliver: _buildSettingsSection(),
+            ),
           ],
         ),
       ),
@@ -46,33 +68,48 @@ class ProfilView extends GetView<ProfilController> {
     );
   }
 
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+
   Widget _buildProfileHeader() {
     return Obx(() => Card(
-          elevation: 2,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: Colors.blue[100]!,
-              width: 1.5,
+              color: const Color(0xFFD84040).withOpacity(0.2),
+              width: 1,
             ),
           ),
-          color: Colors.white,
+          color: const Color(0xFFD84040).withOpacity(0.05),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Container(
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
+                    color: const Color(0xFFD84040).withOpacity(0.1),
                     border: Border.all(
-                      color: Colors.blue[100]!,
-                      width: 1.5,
+                      color: const Color(0xFFD84040).withOpacity(0.3),
+                      width: 1,
                     ),
                   ),
                   child: CircleAvatar(
-                    radius: 40,
-                    backgroundImage:
-                        AssetImage(controller.userProfile['avatar']),
+                    radius: 36,
+                    backgroundImage: AssetImage(controller.userProfile['avatar']),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -83,30 +120,53 @@ class ProfilView extends GetView<ProfilController> {
                       Text(
                         controller.userProfile['name'],
                         style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFD84040),
                         ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         controller.userProfile['email'],
-                        style: TextStyle(color: Colors.grey[700]),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         '@${controller.userProfile['username']}',
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         'Bergabung ${controller.userProfile['joinedDate']}',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.black54,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(LucideIcons.edit,
-                      size: 20, color: Colors.blue),
-                  onPressed: controller.showEditDialog,
-                  tooltip: 'Edit Profil',
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD84040).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFFD84040).withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Icon(
+                    LucideIcons.edit,
+                    size: 18,
+                    color: Color(0xFFD84040),
+                  ),
                 ),
               ],
             ),
@@ -116,55 +176,42 @@ class ProfilView extends GetView<ProfilController> {
 
   Widget _buildStatsSection() {
     return Obx(() => Card(
-          elevation: 2,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: Colors.blue[100]!,
-              width: 1.5,
+              color: const Color(0xFFD84040).withOpacity(0.2),
+              width: 1,
             ),
           ),
-          color: Colors.white,
+          color: const Color(0xFFD84040).withOpacity(0.05),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Statistik Saya',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildStatItem(
                       value: controller.userStats['totalSessions'].toString(),
                       label: 'Sesi',
                       icon: LucideIcons.activity,
-                      color: Colors.blue,
                     ),
                     _buildStatItem(
                       value: controller.userStats['consecutiveDays'].toString(),
                       label: 'Hari Berturut',
                       icon: LucideIcons.flame,
-                      color: Colors.orange,
                     ),
                     _buildStatItem(
                       value: controller.userStats['averageScore']
                           .toStringAsFixed(1),
                       label: 'Rata-rata',
                       icon: LucideIcons.star,
-                      color: Colors.purple,
                     ),
                     _buildStatItem(
                       value: controller.userStats['highestScore'].toString(),
                       label: 'Tertinggi',
                       icon: LucideIcons.trophy,
-                      color: Colors.green,
                     ),
                   ],
                 ),
@@ -178,111 +225,112 @@ class ProfilView extends GetView<ProfilController> {
     required String value,
     required String label,
     required IconData icon,
-    required Color color,
   }) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            shape: BoxShape.circle,
+            color: const Color(0xFFD84040).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: color.withOpacity(0.3),
-              width: 1.5,
+              color: const Color(0xFFD84040).withOpacity(0.2),
+              width: 1,
             ),
           ),
-          child: Icon(icon, size: 20, color: color),
+          child: Icon(
+            icon,
+            size: 20,
+            color: const Color(0xFFD84040),
+          ),
         ),
         const SizedBox(height: 8),
         Text(
           value,
           style: const TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFFD84040),
           ),
         ),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: Colors.black54,
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsItem(
-      Map<String, dynamic> item, String sectionTitle, bool isLastItem) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.blue.withOpacity(0.3),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(item['icon'], size: 20, color: Colors.blue),
-          ),
-          title: Text(item['title']),
-          trailing: _buildSettingsTrailing(item, sectionTitle),
-          onTap: () => _handleSettingsTap(item['action']),
-        ),
-        if (!isLastItem) Divider(height: 1, color: Colors.grey[200]),
       ],
     );
   }
 
   Widget _buildSettingsSection() {
-    return Obx(() => Column(
-          children: controller.settingsOptions
-              .map(
-                (section) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text(
-                        section['title'],
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: Colors.grey[200]!,
-                          width: 1.5,
-                        ),
-                      ),
-                      color: Colors.white,
-                      child: Column(
-                        children:
-                            List.generate(section['items'].length, (index) {
-                          final item = section['items'][index];
-                          final isLastItem =
-                              index == section['items'].length - 1;
-                          return _buildSettingsItem(
-                              item, section['title'], isLastItem);
-                        }),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              )
-              .toList(),
+    return Obx(() => SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, sectionIndex) {
+              final section = controller.settingsOptions[sectionIndex];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (sectionIndex != 0) const SizedBox(height: 16),
+                  ...List.generate(
+                    section['items'].length,
+                    (itemIndex) {
+                      final item = section['items'][itemIndex];
+                      final isLastItem = itemIndex == section['items'].length - 1;
+                      return _buildSettingsItem(item, section['title'], isLastItem);
+                    },
+                  ),
+                ],
+              );
+            },
+            childCount: controller.settingsOptions.length,
+          ),
         ));
+  }
+
+  Widget _buildSettingsItem(
+      Map<String, dynamic> item, String sectionTitle, bool isLastItem) {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: const Color(0xFFD84040).withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      color: const Color(0xFFD84040).withOpacity(0.05),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFD84040).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: const Color(0xFFD84040).withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Icon(
+            item['icon'],
+            size: 20,
+            color: const Color(0xFFD84040),
+          ),
+        ),
+        title: Text(
+          item['title'],
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        trailing: _buildSettingsTrailing(item, sectionTitle),
+        onTap: () => _handleSettingsTap(item['action']),
+      ),
+    );
   }
 
   Widget _buildSettingsTrailing(
@@ -290,16 +338,23 @@ class ProfilView extends GetView<ProfilController> {
     if (sectionTitle == 'Preferensi' && item['value'] is bool) {
       return Switch(
         value: item['value'],
-        activeColor: Colors.blue,
+        activeColor: const Color(0xFFD84040),
         onChanged: (value) => controller.toggleSetting(item['action'], value),
       );
     } else if (item['value'] != null) {
       return Text(
         item['value'].toString(),
-        style: TextStyle(color: Colors.grey[600]),
+        style: const TextStyle(
+          color: Color(0xFFD84040),
+          fontWeight: FontWeight.w500,
+        ),
       );
     }
-    return const Icon(LucideIcons.chevronRight, size: 20, color: Colors.grey);
+    return const Icon(
+      LucideIcons.chevronRight,
+      size: 20,
+      color: Color(0xFFD84040),
+    );
   }
 
   void _handleSettingsTap(String action) {

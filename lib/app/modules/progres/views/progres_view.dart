@@ -317,7 +317,7 @@ class ProgresView extends GetView<ProgresController> {
             crossAxisCount: 2,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.6,
+            childAspectRatio: 0.9,
           ),
           delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -528,7 +528,7 @@ class ProgresView extends GetView<ProgresController> {
             crossAxisCount: 3,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 0.9,
+            childAspectRatio: 0.6,
           ),
           delegate: SliverChildBuilderDelegate(
             (context, index) => _buildBadgeCard(controller.badges[index]),
