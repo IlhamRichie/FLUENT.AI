@@ -15,13 +15,24 @@ class HomeView extends GetView<HomeController> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
-          '🤖 FLUENT',
-          style: TextStyle(
-            color: const Color(0xFFD84040),
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/logo FLUENT.png',
+              height: 24, // Sesuaikan dengan tinggi teks
+              width: 24, // Sesuaikan dengan lebar yang diinginkan
+            ),
+            const SizedBox(width: 3), // Jarak antara logo dan teks
+            const Text(
+              'LUENT',
+              style: TextStyle(
+                color: Color(0xFFD84040),
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(

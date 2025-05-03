@@ -31,38 +31,27 @@ class SertifikatView extends GetView<SertifikatController> {
           ),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD84040)),
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: _buildSearchBar(),
             ),
-          );
-        }
-
-        return CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: _buildSearchBar(),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: _buildCategoryFilter(),
-            ),
-            SliverToBoxAdapter(
-              child: _buildSectionHeader('Daftar Sertifikat'),
-            ),
-            _buildCertificateList(),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 24),
-            ),
-          ],
-        );
-      }),
+          ),
+          SliverToBoxAdapter(
+            child: _buildCategoryFilter(),
+          ),
+          SliverToBoxAdapter(
+            child: _buildSectionHeader('Daftar Sertifikat'),
+          ),
+          Obx(() => _buildCertificateList()),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 24),
+          ),
+        ],
+      ),
       bottomNavigationBar: const NavbarView(),
     );
   }
@@ -117,10 +106,7 @@ class SertifikatView extends GetView<SertifikatController> {
           separatorBuilder: (_, __) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
             final filter = controller.filters[index];
-            return _buildFilterChip(
-              filter,
-              controller.selectedFilter.value == filter,
-            );
+            return _buildFilterChip(filter, controller.selectedFilter.value == filter);
           },
         ),
       ),
@@ -150,7 +136,8 @@ class SertifikatView extends GetView<SertifikatController> {
   }
 
   Widget _buildCertificateList() {
-    if (controller.filteredCertificates.isEmpty) {
+    final filtered = controller.filteredCertificates;
+    if (filtered.isEmpty) {
       return SliverFillRemaining(
         child: Center(
           child: Column(
@@ -173,19 +160,18 @@ class SertifikatView extends GetView<SertifikatController> {
         ),
       );
     }
-
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            final cert = controller.filteredCertificates[index];
+            final cert = filtered[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _buildCertificateCard(cert),
             );
           },
-          childCount: controller.filteredCertificates.length,
+          childCount: filtered.length,
         ),
       ),
     );
@@ -195,7 +181,6 @@ class SertifikatView extends GetView<SertifikatController> {
     final color = controller.parseColor(cert['color']);
     final bgColor = color.withOpacity(0.05);
     final isUnlocked = cert['unlocked'];
-
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -238,8 +223,7 @@ class SertifikatView extends GetView<SertifikatController> {
                   ),
                   if (isUnlocked && cert['score'] != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: color.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4),
@@ -281,8 +265,7 @@ class SertifikatView extends GetView<SertifikatController> {
                         size: 18,
                         color: color,
                       ),
-                      onPressed: () =>
-                          controller.downloadCertificate(cert['id']),
+                      onPressed: () => controller.downloadCertificate(cert['id']),
                       tooltip: 'Unduh',
                     ),
                     IconButton(
@@ -335,10 +318,9 @@ class SertifikatView extends GetView<SertifikatController> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                             side: BorderSide(
-                              color:
-                                  controller.selectedFilter.value == filter
-                                      ? const Color(0xFFD84040)
-                                      : Colors.grey[300]!,
+                              color: controller.selectedFilter.value == filter
+                                  ? const Color(0xFFD84040)
+                                  : Colors.grey[300]!,
                               width: 1,
                             ),
                           ),
@@ -349,20 +331,18 @@ class SertifikatView extends GetView<SertifikatController> {
                             title: Text(
                               filter,
                               style: TextStyle(
-                                color: controller.selectedFilter.value ==
-                                        filter
+                                color: controller.selectedFilter.value == filter
                                     ? const Color(0xFFD84040)
                                     : Colors.black,
                               ),
                             ),
-                            trailing:
-                                controller.selectedFilter.value == filter
-                                    ? const Icon(
-                                        LucideIcons.check,
-                                        color: Color(0xFFD84040),
-                                        size: 18,
-                                      )
-                                    : null,
+                            trailing: controller.selectedFilter.value == filter
+                                ? const Icon(
+                                    LucideIcons.check,
+                                    color: Color(0xFFD84040),
+                                    size: 18,
+                                  )
+                                : null,
                             onTap: () {
                               controller.changeFilter(filter);
                               Get.back();

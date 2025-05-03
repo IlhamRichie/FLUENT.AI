@@ -8,7 +8,7 @@ class ProfilController extends GetxController {
     'name': 'Ilham Rigan',
     'email': 'ilhamrigan22@gmail.com',
     'username': 'rigan22',
-    'avatar': 'assets/images/avatar.png',
+    'avatar': 'assets/images/profil.png',
     'joinedDate': '15 Maret 2025',
     'language': 'Bahasa Indonesia',
     'notificationEnabled': true,

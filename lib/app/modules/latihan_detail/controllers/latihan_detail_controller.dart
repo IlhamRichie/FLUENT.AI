@@ -1,3 +1,6 @@
+import 'package:fluent_ai/app/modules/wawancara/bindings/wawancara_binding.dart';
+import 'package:fluent_ai/app/modules/wawancara/views/wawancara_view.dart';
+import 'package:fluent_ai/app/modules/wawancara/views/wawanvara_intro_view.dart';
 import 'package:get/get.dart';
 import 'package:fluent_ai/app/data/services/latihan_service.dart';
 
@@ -15,10 +18,8 @@ class LatihanDetailController extends GetxController {
   Future<void> loadLatihanDetail() async {
     try {
       isLoading.value = true;
-      // Get arguments passed from navigation
       final arguments = Get.arguments;
       if (arguments != null && arguments is Map<String, dynamic>) {
-        // Simulate loading detail data
         await Future.delayed(const Duration(seconds: 1));
         latihanDetail.value = {
           ...arguments,
@@ -36,6 +37,7 @@ class LatihanDetailController extends GetxController {
             'Apa kelebihan utama Anda?',
             'Bagaimana Anda menghadapi tantangan?'
           ],
+          'warna': arguments['warna'] ?? '#D84040', // Tambahkan warna default
         };
       }
     } catch (e) {
@@ -46,7 +48,10 @@ class LatihanDetailController extends GetxController {
   }
 
   void mulaiLatihan() {
-    Get.snackbar('Mulai Latihan', 'Memulai latihan ${latihanDetail['nama'] ?? latihanDetail['judul']}');
-    // Add your logic to start the practice session
+    Get.to(
+      () => const WawancaraIntroView(),
+      binding: WawancaraBinding(),
+      arguments: latihanDetail.value, // Kirim data latihan ke WawancaraController
+    );
   }
 }

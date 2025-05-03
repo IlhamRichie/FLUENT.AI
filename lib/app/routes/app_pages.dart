@@ -26,6 +26,8 @@ import '../modules/sertifikat_detail/bindings/sertifikat_detail_binding.dart';
 import '../modules/sertifikat_detail/views/sertifikat_detail_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
+import '../modules/wawancara/bindings/wawancara_binding.dart';
+import '../modules/wawancara/views/wawancara_view.dart';
 
 part 'app_routes.dart';
 
@@ -99,6 +101,11 @@ class AppPages {
       name: _Paths.SERTIFIKAT_DETAIL,
       page: () => const SertifikatDetailView(),
       binding: SertifikatDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.WAWANCARA,
+      page: () => const WawancaraView(),
+      binding: WawancaraBinding(),
     ),
   ];
 }
