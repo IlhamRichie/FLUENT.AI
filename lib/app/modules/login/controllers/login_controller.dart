@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fluent_ai/app/data/services/api_service.dart';
@@ -10,6 +9,8 @@ class LoginController extends GetxController {
   final TextEditingController passwordController = TextEditingController();
   final RxBool obscureText = true.obs;
   final RxInt currentTextIndex = 0.obs;
+  final RxBool isLoading = false.obs;
+
   final List<String> footerTexts = [
     "Tingkatkan skill ngomong lo biar makin pede! 🚀",
     "Latihan pake AI, biar lo makin lancar ngomong. 🤖",
@@ -17,8 +18,6 @@ class LoginController extends GetxController {
     "Siap-siap buat wawancara kerja yang sukses! 💼",
     "Jadi jago komunikasi dalam waktu singkat! ⏱️",
   ];
-
-  final ApiService _apiService = Get.find<ApiService>();
 
   @override
   void onInit() {
@@ -28,8 +27,7 @@ class LoginController extends GetxController {
 
   void startTextRotation() {
     Timer.periodic(const Duration(seconds: 2), (Timer timer) {
-      currentTextIndex.value =
-          (currentTextIndex.value + 1) % footerTexts.length;
+      currentTextIndex.value = (currentTextIndex.value + 1) % footerTexts.length;
     });
   }
 
@@ -37,45 +35,45 @@ class LoginController extends GetxController {
     obscureText.value = !obscureText.value;
   }
 
-  //Sementara
+  Future<void> login() async {
+    try {
+      isLoading.value = true;
+      
+      final response = await ApiService.login(
+        email: usernameController.text.trim(),
+        password: passwordController.text.trim(),
+      );
 
-  // Tambahkan method untuk login Google
+      if (response['status'] == 'success') {
+        // Store tokens securely here
+        Get.offAllNamed(Routes.HOME);
+      } else {
+        Get.snackbar(
+          'Error',
+          response['message'],
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Terjadi kesalahan saat login',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void loginWithGoogle() async {
-    // Tampilkan loading
     Get.dialog(
       const Center(child: CircularProgressIndicator()),
       barrierDismissible: false,
     );
 
-    // Simulasikan delay proses login
     await Future.delayed(const Duration(seconds: 2));
-
-    // Tutup dialog loading
     Get.back();
-
-    // Navigasi ke home
     Get.offAllNamed(Routes.HOME);
-  }
-
-  Future<void> login() async {
-    final username = usernameController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (username.isEmpty || password.isEmpty) {
-      Get.snackbar("Error", "Username dan Password wajib diisi");
-      return;
-    }
-
-    try {
-      final result = await _apiService.login(username, password);
-      if (result['status'] == 'success') {
-        Get.offAllNamed(Routes.HOME);
-      } else {
-        Get.snackbar("Login Gagal", result['message']);
-      }
-    } catch (e) {
-      Get.snackbar("Error", "Terjadi kesalahan saat login");
-    }
   }
 
   void navigateToRegister() {

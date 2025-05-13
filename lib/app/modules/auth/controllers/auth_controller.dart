@@ -6,52 +6,81 @@ import '../../home/views/home_view.dart';
 class AuthController extends GetxController {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-  final emailController = TextEditingController(); // Tambahkan email controller
-  final genderController =
-      TextEditingController(); // Tambahkan gender controller
-  final occupationController =
-      TextEditingController(); // Tambahkan occupation controller
+  final emailController = TextEditingController();
+  final genderController = TextEditingController();
+  final occupationController = TextEditingController();
 
-  final api = ApiService();
+  final RxBool isLoading = false.obs;
 
   Future<void> register() async {
-    final email = emailController.text.trim();
-    final username = usernameController.text.trim();
-    final password = passwordController.text.trim();
-    final gender = genderController.text.trim(); // Ambil nilai gender
-    final occupation =
-        occupationController.text.trim(); // Ambil nilai occupation
+    try {
+      isLoading.value = true;
+      
+      final response = await ApiService.register(
+        email: emailController.text.trim(),
+        username: usernameController.text.trim(),
+        password: passwordController.text.trim(),
+        gender: genderController.text.trim(),
+        occupation: occupationController.text.trim(),
+      );
 
-    if (email.isEmpty ||
-        username.isEmpty ||
-        password.isEmpty ||
-        gender.isEmpty ||
-        occupation.isEmpty) {
-      Get.snackbar("Error", "Semua field wajib diisi");
-      return;
-    }
+      Get.snackbar(
+        response['status'].toString().capitalizeFirst ?? 'Success',
+        response['message'],
+        snackPosition: SnackPosition.BOTTOM,
+      );
 
-    final res = await api.register(
-      email,
-      username,
-      password,
-      gender,
-      occupation,
-    );
-    Get.snackbar(res['status'], res['message']);
-    if (res['status'] == 'success') {
-      Get.toNamed('/login');
+      if (response['status'] == 'success') {
+        Get.offNamed('/login');
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 
   Future<void> login() async {
-    final res = await api.login(
-      usernameController.text,
-      passwordController.text,
-    );
-    Get.snackbar(res['status'], res['message']);
-    if (res['status'] == 'success') {
-      Get.offAllNamed('/home');
+    try {
+      isLoading.value = true;
+      
+      final response = await ApiService.login(
+        email: emailController.text.trim(), // ← Disini sudah benar pakai email
+        password: passwordController.text.trim(),
+      );
+
+      Get.snackbar(
+        response['status'].toString().capitalizeFirst ?? 'Success',
+        response['message'],
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      if (response['status'] == 'success') {
+        // Store tokens securely here
+        Get.offAllNamed('/home');
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
     }
+  }
+
+  @override
+  void onClose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    emailController.dispose();
+    genderController.dispose();
+    occupationController.dispose();
+    super.onClose();
   }
 }

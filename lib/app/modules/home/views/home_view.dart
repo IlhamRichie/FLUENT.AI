@@ -25,7 +25,7 @@ class HomeView extends GetView<HomeController> {
             ),
             const SizedBox(width: 3), // Jarak antara logo dan teks
             const Text(
-              'LUENT',
+              'FLUENT',
               style: TextStyle(
                 color: Color(0xFFD84040),
                 fontWeight: FontWeight.bold,
