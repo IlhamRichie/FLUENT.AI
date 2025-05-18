@@ -17,6 +17,7 @@ abstract class Routes {
   static const NAVBAR = _Paths.NAVBAR;
   static const SERTIFIKAT_DETAIL = _Paths.SERTIFIKAT_DETAIL;
   static const WAWANCARA = _Paths.WAWANCARA;
+  static const LUPA = _Paths.LUPA;
 }
 
 abstract class _Paths {
@@ -35,4 +36,5 @@ abstract class _Paths {
   static const NAVBAR = '/navbar';
   static const SERTIFIKAT_DETAIL = '/sertifikat-detail';
   static const WAWANCARA = '/wawancara';
+  static const LUPA = '/lupa';
 }

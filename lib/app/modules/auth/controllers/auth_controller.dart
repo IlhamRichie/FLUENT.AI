@@ -1,7 +1,9 @@
+import 'package:fluent_ai/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/services/api_service.dart';
 import '../../home/views/home_view.dart';
+import '../../../data/services/user_service.dart';
 
 class AuthController extends GetxController {
   final usernameController = TextEditingController();
@@ -15,7 +17,7 @@ class AuthController extends GetxController {
   Future<void> register() async {
     try {
       isLoading.value = true;
-      
+
       final response = await ApiService.register(
         email: emailController.text.trim(),
         username: usernameController.text.trim(),
@@ -31,6 +33,12 @@ class AuthController extends GetxController {
       );
 
       if (response['status'] == 'success') {
+        UserService.to.setUserData(
+          username: usernameController.text.trim(),
+          email: emailController.text.trim(),
+          occupation: occupationController.text.trim(),
+          gender: genderController.text.trim(),
+        );
         Get.offNamed('/login');
       }
     } catch (e) {
@@ -47,7 +55,7 @@ class AuthController extends GetxController {
   Future<void> login() async {
     try {
       isLoading.value = true;
-      
+
       final response = await ApiService.login(
         email: emailController.text.trim(), // ← Disini sudah benar pakai email
         password: passwordController.text.trim(),
@@ -60,8 +68,15 @@ class AuthController extends GetxController {
       );
 
       if (response['status'] == 'success') {
-        // Store tokens securely here
-        Get.offAllNamed('/home');
+        final userData =
+            response['user']; // Pastikan ini sesuai response backend
+        UserService.to.setUserData(
+          username: userData['username'] ?? usernameController.text.trim(),
+          email: userData['email'] ?? emailController.text.trim(),
+          occupation: userData['occupation'] ?? '',
+          gender: userData['gender'] ?? '',
+        );
+        Get.offAllNamed(Routes.HOME);
       }
     } catch (e) {
       Get.snackbar(

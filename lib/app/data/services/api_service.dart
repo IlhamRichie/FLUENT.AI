@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://8a13-103-208-204-252.ngrok-free.app';
+  static const String baseUrl = 'http://192.168.126.206:5000';
 
   // Helper function for handling requests
   static Future<dynamic> _handleRequest(
@@ -171,6 +171,33 @@ class ApiService {
     );
   }
 
+  static Future<dynamic> getUserStats({required String token}) async {
+    return await _handleRequest(
+      'GET',
+      '/api/user/stats',
+      null,
+      token: token,
+    );
+  }
+
+  static Future<dynamic> getRecentActivities({required String token}) async {
+    return await _handleRequest(
+      'GET',
+      '/api/user/activities',
+      null,
+      token: token,
+    );
+  }
+
+  static Future<dynamic> getUserBadges({required String token}) async {
+    return await _handleRequest(
+      'GET',
+      '/api/user/badges',
+      null,
+      token: token,
+    );
+  }
+
   static Future<dynamic> analyzeSpeech({
     required String token,
     required File audioFile,
@@ -178,7 +205,7 @@ class ApiService {
     try {
       final url = Uri.parse('$baseUrl/analyze_speech');
       final request = http.MultipartRequest('POST', url);
-      
+
       request.headers['Authorization'] = 'Bearer $token';
       request.files.add(await http.MultipartFile.fromPath(
         'audio',
@@ -191,7 +218,8 @@ class ApiService {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return jsonDecode(responseData);
       } else {
-        throw Exception(jsonDecode(responseData)['message'] ?? 'Something went wrong');
+        throw Exception(
+            jsonDecode(responseData)['message'] ?? 'Something went wrong');
       }
     } catch (e) {
       debugPrint('Error in analyzeSpeech: $e');

@@ -1,182 +1,150 @@
-import 'package:flutter/material.dart';
+// lib/app/modules/progres/controllers/progres_controller.dart
 import 'package:get/get.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter/material.dart'; // Untuk IconData
+import 'package:lucide_icons/lucide_icons.dart'; // Untuk IconData
 
 class ProgresController extends GetxController {
-  // Loading state
-  final RxBool isLoading = false.obs;
+  final isLoading = true.obs;
+  final selectedTimeframe = 'Mingguan'.obs;
+  final selectedChartData = 'Skor Rata-rata'.obs;
 
-  // Data for progress charts
-  final RxList<Map<String, dynamic>> weeklyProgress = <Map<String, dynamic>>[
-    {"day": "Sen", "score": 65, "expression": 70, "narrative": 60},
-    {"day": "Sel", "score": 70, "expression": 75, "narrative": 65},
-    {"day": "Rab", "score": 75, "expression": 80, "narrative": 70},
-    {"day": "Kam", "score": 80, "expression": 85, "narrative": 75},
-    {"day": "Jum", "score": 85, "expression": 90, "narrative": 80},
-    {"day": "Sab", "score": 82, "expression": 88, "narrative": 76},
-    {"day": "Min", "score": 88, "expression": 92, "narrative": 84},
-  ].obs;
-
-  final RxList<Map<String, dynamic>> monthlyProgress = <Map<String, dynamic>>[
-    {"week": "Minggu 1", "score": 65, "expression": 70, "narrative": 60},
-    {"week": "Minggu 2", "score": 72, "expression": 76, "narrative": 68},
-    {"week": "Minggu 3", "score": 78, "expression": 82, "narrative": 74},
-    {"week": "Minggu 4", "score": 85, "expression": 88, "narrative": 82},
-  ].obs;
-
-  // Skill metrics
-  final RxMap<String, dynamic> skillMetrics = {
-    "expression": 82,
-    "narrative": 78,
-    "clarity": 75,
-    "confidence": 80,
-    "filler_words": 15, // per minute
-  }.obs;
-
-  // Badges and achievements
-  final RxList<Map<String, dynamic>> badges = <Map<String, dynamic>>[
-    {
-      "title": "Pembicara Konsisten",
-      "description": "Latihan 7 hari berturut-turut",
-      "icon": LucideIcons.flame,
-      "unlocked": true,
-      "date": "20 Apr 2025"
-    },
-    {
-      "title": "Ekspresi Master",
-      "description": "Skor ekspresi di atas 85",
-      "icon": LucideIcons.smile,
-      "unlocked": true,
-      "date": "18 Apr 2025"
-    },
-    {
-      "title": "Narator Handal",
-      "description": "Skor narasi di atas 80",
-      "icon": LucideIcons.text,
-      "unlocked": false,
-      "date": "Locked"
-    },
-    {
-      "title": "Tanpa Filler Words",
-      "description": "0 filler words dalam 3 latihan",
-      "icon": LucideIcons.volume2,
-      "unlocked": false,
-      "date": "Locked"
-    },
-  ].obs;
-
-  // Areas to improve
-  final RxList<Map<String, dynamic>> improvementAreas = <Map<String, dynamic>>[
-    {
-      "area": "Filler Words",
-      "description": "Kurangi kata 'eee', 'mmm', 'anu'",
-      "progress": 0.6,
-      "suggestion": "Latihan jeda sebelum berbicara"
-    },
-    {
-      "area": "Kecepatan Bicara",
-      "description": "Terlalu cepat saat gugup",
-      "progress": 0.4,
-      "suggestion": "Latihan pernafasan dan tempo"
-    },
-    {
-      "area": "Kontak Mata",
-      "description": "Kurang konsisten",
-      "progress": 0.7,
-      "suggestion": "Latihan dengan kamera"
-    },
-  ].obs;
-
-  // Timeframe selection
-  final RxString selectedTimeframe = 'Mingguan'.obs;
-  final List<String> timeframes = ['Mingguan', 'Bulanan'];
-
-  // Chart data selection
-  final RxString selectedChartData = 'Skor'.obs;
-  final List<String> chartDataOptions = ['Skor', 'Ekspresi', 'Narasi'];
+  // Dummy Data
+  final timeframes = ['Mingguan', 'Bulanan', 'Tahunan'].obs;
+  final chartDataOptions = ['Skor Rata-rata', 'Sesi Latihan', 'Waktu Latihan'].obs;
+  
+  final RxList<Map<String, dynamic>> currentProgressData = <Map<String, dynamic>>[].obs;
+  final RxMap<String, dynamic> skillMetrics = <String, dynamic>{}.obs;
+  final RxList<Map<String, dynamic>> improvementAreas = <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> badges = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    // Simulate loading data when controller initializes
-    loadData();
+    refreshData();
   }
 
-  // Simulate loading data
-  Future<void> loadData() async {
-    isLoading.value = true;
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network request
-    isLoading.value = false;
-  }
-
-  // Refresh data
   Future<void> refreshData() async {
     isLoading.value = true;
-    await Future.delayed(const Duration(seconds: 1)); // Simulate refresh
+    await Future.delayed(const Duration(milliseconds: 1800)); // Simulasi loading
+
+    // Update data berdasarkan selectedTimeframe dan selectedChartData
+    _updateChartData();
+    _updateSkillMetrics();
+    _updateImprovementAreas();
+    _updateBadges();
+    
     isLoading.value = false;
   }
 
-  // Get the current progress data based on selected timeframe
-  List<Map<String, dynamic>> get currentProgressData {
-    return selectedTimeframe.value == 'Mingguan' 
-      ? weeklyProgress
-      : monthlyProgress;
-  }
-
-  // Get the chart title based on selected data
-  String get chartTitle {
-    return 'Perkembangan ${selectedChartData.value} (${selectedTimeframe.value})';
-  }
-
-  // Get the chart value based on selected data
-  double getChartValue(Map<String, dynamic> data) {
-    switch (selectedChartData.value) {
-      case 'Ekspresi':
-        return data['expression'].toDouble();
-      case 'Narasi':
-        return data['narrative'].toDouble();
-      default:
-        return data['score'].toDouble();
+  void _updateChartData() {
+    // Logika untuk mengisi currentProgressData berdasarkan filter
+    if (selectedChartData.value == 'Skor Rata-rata') {
+      if (selectedTimeframe.value == 'Mingguan') {
+        currentProgressData.assignAll([
+          {'label': 'M1', 'value': 65.0}, {'label': 'M2', 'value': 70.0},
+          {'label': 'M3', 'value': 68.0}, {'label': 'M4', 'value': 75.0},
+        ]);
+      } else if (selectedTimeframe.value == 'Bulanan') {
+         currentProgressData.assignAll([
+          {'label': 'Jan', 'value': 60.0}, {'label': 'Feb', 'value': 65.0},
+          {'label': 'Mar', 'value': 72.0}, {'label': 'Apr', 'value': 70.0},
+        ]);
+      } else { // Tahunan
+         currentProgressData.assignAll([
+          {'label': 'Q1', 'value': 68.0}, {'label': 'Q2', 'value': 72.0},
+          {'label': 'Q3', 'value': 75.0}, {'label': 'Q4', 'value': 78.0},
+        ]);
+      }
+    } else if (selectedChartData.value == 'Sesi Latihan') {
+      // ... data sesi latihan
+       currentProgressData.assignAll([
+          {'label': 'M1', 'value': 10.0}, {'label': 'M2', 'value': 12.0},
+          {'label': 'M3', 'value': 8.0}, {'label': 'M4', 'value': 15.0},
+        ]);
+    } else { // Waktu Latihan
+      // ... data waktu latihan (misalnya dalam menit)
+       currentProgressData.assignAll([
+          {'label': 'M1', 'value': 120.0}, {'label': 'M2', 'value': 150.0},
+          {'label': 'M3', 'value': 100.0}, {'label': 'M4', 'value': 180.0},
+        ]);
     }
   }
 
-  // Get the max value for chart scaling
-  double get maxChartValue {
-    final data = currentProgressData;
-    double max = 0;
-    for (var item in data) {
-      double value = getChartValue(item);
-      if (value > max) max = value;
-    }
-    return max * 1.1; // Add 10% padding
+  void _updateSkillMetrics() {
+    skillMetrics.assignAll({
+      'expression': 75.0, 'narrative': 80.0, 'clarity': 70.0,
+      'confidence': 85.0, 'filler_words': 5.0, // 5 per menit misalnya
+    });
   }
 
-  // Get the label for x-axis
-  String getXAxisLabel(Map<String, dynamic> data) {
-    return selectedTimeframe.value == 'Mingguan' 
-      ? data['day'] 
-      : data['week'];
+  void _updateImprovementAreas() {
+    improvementAreas.assignAll([
+      {
+        'area': 'Kejelasan Artikulasi', 'description': 'Fokus pada pengucapan kata yang lebih jelas dan vokal yang kuat.',
+        'progress': 0.6, 'suggestion': 'Latihan membaca teks dengan suara keras dan merekam diri sendiri.',
+        'color': '#3498DB' // Biru
+      },
+      {
+        'area': 'Pengurangan Filler Words', 'description': 'Kurangi penggunaan "umm", "ahh", atau kata pengisi lainnya.',
+        'progress': 0.4, 'suggestion': 'Berlatih berbicara dengan jeda sadar daripada menggunakan filler.',
+        'color': '#E74C3C' // Merah
+      },
+       {
+        'area': 'Kontak Mata & Gestur', 'description': 'Tingkatkan penggunaan kontak mata dan gestur tubuh yang mendukung pesan Anda.',
+        'progress': 0.75, 'suggestion': 'Berlatih di depan cermin atau rekam video presentasi.',
+        'color': '#2ECC71' // Hijau
+      },
+    ]);
   }
 
-  // Get color for chart based on selected data
-  Color get chartColor {
-    switch (selectedChartData.value) {
-      case 'Ekspresi':
-        return Colors.orange;
-      case 'Narasi':
-        return Colors.green;
-      default:
-        return const Color(0xFFD84040); // Using the red color from design
-    }
+  void _updateBadges() {
+    badges.assignAll([
+      {'icon': LucideIcons.award, 'title': 'Penyelesai 10 Sesi', 'date': '20 Apr', 'unlocked': true, 'color': '#F1C40F'},
+      {'icon': LucideIcons.zap, 'title': 'Skor Tertinggi', 'date': '18 Apr', 'unlocked': true, 'color': '#E67E22'},
+      {'icon': LucideIcons.calendarDays, 'title': 'Rajin Mingguan', 'date': 'Terkunci', 'unlocked': false, 'color': '#BDC3C7'},
+      {'icon': LucideIcons.star, 'title': 'Master Ekspresi', 'date': 'Terkunci', 'unlocked': false, 'color': '#BDC3C7'},
+      {'icon': LucideIcons.shieldCheck, 'title': 'Anti Filler Word', 'date': '22 Apr', 'unlocked': true, 'color': '#9B59B6'},
+      {'icon': LucideIcons.trendingUp, 'title': 'Peningkatan Pesat', 'date': 'Terkunci', 'unlocked': false, 'color': '#BDC3C7'},
+    ]);
   }
 
-  // Change timeframe
   void changeTimeframe(String timeframe) {
     selectedTimeframe.value = timeframe;
+    refreshData(); // Atau hanya _updateChartData() jika hanya chart yang terpengaruh
   }
 
-  // Change chart data
-  void changeChartData(String data) {
-    selectedChartData.value = data;
+  void changeChartData(String dataOption) {
+    selectedChartData.value = dataOption;
+     refreshData(); // Atau hanya _updateChartData()
+  }
+
+  String get chartTitle {
+    return '${selectedChartData.value} (${selectedTimeframe.value})';
+  }
+
+  double get maxChartValue {
+    if (selectedChartData.value == 'Skor Rata-rata') return 100.0;
+    if (selectedChartData.value == 'Sesi Latihan') return 20.0; // Sesuaikan
+    if (selectedChartData.value == 'Waktu Latihan') return 200.0; // Sesuaikan
+    return 100.0;
+  }
+   double get intervalChartValue {
+    if (selectedChartData.value == 'Skor Rata-rata') return 20.0;
+    if (selectedChartData.value == 'Sesi Latihan') return 5.0; // Sesuaikan
+    if (selectedChartData.value == 'Waktu Latihan') return 50.0; // Sesuaikan
+    return 20.0;
+  }
+
+  String getXAxisLabel(Map<String, dynamic> data) => data['label'] as String;
+  double getChartValue(Map<String, dynamic> data) => data['value'] as double;
+
+  Color parseColor(String hexColor) { // Helper untuk parse warna
+    try {
+      hexColor = hexColor.toUpperCase().replaceAll("#", "");
+      if (hexColor.length == 6) hexColor = "FF$hexColor";
+      return Color(int.parse(hexColor, radix: 16));
+    } catch (e) {
+      return const Color(0xFFD84040); // Default
+    }
   }
 }

@@ -12,6 +12,8 @@ import '../modules/latihan_detail/bindings/latihan_detail_binding.dart';
 import '../modules/latihan_detail/views/latihan_detail_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/lupa/bindings/lupa_binding.dart';
+import '../modules/lupa/views/lupa_view.dart';
 import '../modules/navbar/bindings/navbar_binding.dart';
 import '../modules/navbar/views/navbar_view.dart';
 import '../modules/profil/bindings/profil_binding.dart';
@@ -106,6 +108,11 @@ class AppPages {
       name: _Paths.WAWANCARA,
       page: () => const WawancaraView(),
       binding: WawancaraBinding(),
+    ),
+    GetPage(
+      name: _Paths.LUPA,
+      page: () => const LupaView(),
+      binding: LupaBinding(),
     ),
   ];
 }

@@ -1,155 +1,95 @@
+// lib/app/modules/home/controllers/home_controller.dart
+import 'package:fluent_ai/app/modules/home/models/aktifitas_model.dart';
+import 'package:fluent_ai/app/modules/home/models/tipe_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:fluent_ai/app/data/services/user_service.dart';
+// import 'package:fluent_ai/app/routes/app_pages.dart'; // Jika ingin navigasi ke /latihan
 
 class HomeController extends GetxController {
-  final RxBool isLoading = false.obs;
+  final isLoading = true.obs;
+  final UserService userService = Get.find<UserService>(); // Dapatkan instance UserService
 
-  final Color primaryColor = const Color(0xFFD84040);
-  final RxInt currentTabIndex = 0.obs;
+  // Data Observables
+  final averageScore = 0.0.obs;
+  final consecutiveDays = 0.obs;
+  final tokens = 0.obs;
+  final overallProgress = 0.0.obs; // Untuk progress bar utama
 
-  // User data
-  final RxString username = 'Ilham Rigan'.obs;
-  final RxString userAvatar = 'assets/images/default_avatar.png'.obs;
-  final RxDouble averageScore = 76.5.obs;
+  final RxList<ActivityModel> activities = <ActivityModel>[].obs;
+  final RxList<PracticeTypeModel> practiceTypes = <PracticeTypeModel>[].obs;
+  final recommendationText = ''.obs;
 
-  // Stats
-  final RxInt speechCount = 12.obs;
-  final RxInt expressionCount = 8.obs;
-  final RxInt narrativeCount = 5.obs;
-  final RxInt consecutiveDays = 3.obs;
-
-  // Token
-  final RxInt tokens = 15.obs;
-  final RxBool hasTokens = true.obs;
-
-  // Latest activity
-  final RxList<Map<String, dynamic>> activities = <Map<String, dynamic>>[
-    {
-      'type': 'Latihan',
-      'title': 'Public Speaking - TED Style',
-      'date': 'Hari Ini, 10:30',
-      'score': 82,
-      'icon': LucideIcons.mic2,
-      'color': Colors.blue,
-    },
-    {
-      'type': 'Latihan',
-      'title': 'Wawancara Kerja - Tech',
-      'date': 'Kemarin, 14:15',
-      'score': 75,
-      'icon': LucideIcons.briefcase,
-      'color': Colors.green,
-    },
-    {
-      'type': 'Latihan',
-      'title': 'Ekspresi Wajah',
-      'date': '2 Hari Lalu, 09:45',
-      'score': 88,
-      'icon': LucideIcons.smile,
-      'color': Colors.orange,
-    },
-  ].obs;
-
-  // Practice types
-  final RxList<Map<String, dynamic>> practiceTypes = <Map<String, dynamic>>[
-    {
-      'title': 'Simulasi Wawancara AI',
-      'description': 'Latihan wawancara dengan berbagai skenario',
-      'icon': LucideIcons.briefcase,
-      'level': 'Medium',
-      'time': '15-20 menit',
-    },
-    {
-      'title': 'Public Speaking',
-      'description': 'Latihan presentasi ala TED Talk',
-      'icon': LucideIcons.mic2,
-      'level': 'Sulit',
-      'time': '20-30 menit',
-    },
-    {
-      'title': 'Latihan Ekspresi',
-      'description': 'Perbaikan ekspresi wajah dan gestur',
-      'icon': LucideIcons.smile,
-      'level': 'Mudah',
-      'time': '10-15 menit',
-    },
-    {
-      'title': 'Latihan Narasi',
-      'description': 'Meningkatkan alur cerita dan struktur bicara',
-      'icon': LucideIcons.text,
-      'level': 'Medium',
-      'time': '15-20 menit',
-    },
-  ].obs;
-
-  // Badges
-  final RxList<Map<String, dynamic>> badges = <Map<String, dynamic>>[
-    {
-      'title': 'Pembicara Pemula',
-      'description': 'Menyelesaikan 5 sesi latihan',
-      'icon': LucideIcons.award,
-      'unlocked': true,
-    },
-    {
-      'title': 'Konsisten 3 Hari',
-      'description': 'Latihan 3 hari berturut-turut',
-      'icon': LucideIcons.flame,
-      'unlocked': true,
-    },
-    {
-      'title': 'Ekspresi Master',
-      'description': 'Skor ekspresi di atas 85',
-      'icon': LucideIcons.smile,
-      'unlocked': false,
-    },
-  ].obs;
-
-  void navigateToPractice(String type) {
-    Get.toNamed('/latihan-detail', arguments: {'type': type});
-  }
-
-  void navigateToLatihan() {
-    Get.toNamed('/latihan');
-  }
-
-  void showPracticeDialog() {
-    Get.defaultDialog(
-      title: 'Mulai Latihan',
-      content: Column(
-        children: [
-          const Text('Pilih jenis latihan:'),
-          const SizedBox(height: 16),
-          ...practiceTypes.map((type) => ListTile(
-                leading: Icon(type['icon']),
-                title: Text(type['title']),
-                subtitle: Text(type['description']),
-                onTap: () => navigateToPractice(type['title']),
-              )),
-        ],
-      ),
-    );
-  }
+  // Quick Actions Data (bisa statis atau dari remote)
+  final List<Map<String, dynamic>> quickActionItems = [
+    {'title': 'Wawancara', 'icon': LucideIcons.briefcase, 'colorHex': '#3498DB', 'practiceType': 'Wawancara'},
+    {'title': 'Public Speaking', 'icon': LucideIcons.megaphone, 'colorHex': '#2ECC71', 'practiceType': 'Public Speaking'},
+    {'title': 'Ekspresi Wajah', 'icon': LucideIcons.smile, 'colorHex': '#E67E22', 'practiceType': 'Ekspresi'},
+    {'title': 'Semua Latihan', 'icon': LucideIcons.layoutGrid, 'colorHex': '#9B59B6', 'navigateTo': '/latihan'}, // Rute ke halaman Latihan
+  ];
 
   @override
   void onInit() {
     super.onInit();
-    // Simulate loading data when controller initializes
-    loadData();
+    fetchHomeData();
   }
 
-  // Simulate loading data
-  Future<void> loadData() async {
+  Future<void> fetchHomeData() async {
     isLoading.value = true;
-    await Future.delayed(
-        const Duration(seconds: 1)); // Simulate network request
+    await Future.delayed(const Duration(milliseconds: 1800)); // Simulasi loading
+
+    // Isi data dummy
+    averageScore.value = 82.5;
+    consecutiveDays.value = 12;
+    tokens.value = 1500;
+    overallProgress.value = 0.78; // 78%
+
+    activities.assignAll([
+      ActivityModel(id: 'act1', title: 'Simulasi Wawancara Teknis', date: 'Kemarin, 10:30', score: 88, icon: LucideIcons.briefcase, colorHex: '#3498DB'),
+      ActivityModel(id: 'act2', title: 'Presentasi Proyek Tim', date: '2 hari lalu, 15:00', score: 92, icon: LucideIcons.megaphone, colorHex: '#2ECC71'),
+      ActivityModel(id: 'act3', title: 'Latihan Intonasi Cerita', date: '3 hari lalu, 09:00', score: 78, icon: LucideIcons.smile, colorHex: '#E67E22'),
+    ]);
+
+    practiceTypes.assignAll([
+      PracticeTypeModel(id: 'pt1', title: 'Kecepatan Bicara'),
+      PracticeTypeModel(id: 'pt2', title: 'Pengurangan Filler Words'),
+      PracticeTypeModel(id: 'pt3', title: 'Kontak Mata'),
+    ]);
+    recommendationText.value = 'Kamu tampil hebat! Fokus selanjutnya bisa pada variasi intonasi untuk membuat penyampaian lebih menarik.';
+
     isLoading.value = false;
   }
 
-  // Refresh data
-  Future<void> refreshData() async {
-    isLoading.value = true;
-    await Future.delayed(const Duration(seconds: 1)); // Simulate refresh
-    isLoading.value = false;
+  void navigateToPractice(String practiceType) {
+    Get.snackbar(
+      'Mulai Latihan Cepat',
+      'Navigasi ke latihan: $practiceType',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: parseColor(quickActionItems.firstWhere((item) => item['title'] == practiceType)['colorHex']).withOpacity(0.9),
+      colorText: Colors.white,
+    );
+    // Implementasi navigasi ke halaman latihan spesifik
+    // Contoh: Get.toNamed('/latihan/detail', arguments: {'type': practiceType});
+  }
+
+  void navigateToLatihanPage() {
+     // Pastikan Anda punya route '/latihan' yang terdefinisi
+     Get.toNamed('/latihan'); // Menggunakan Get.toNamed jika ini halaman baru, atau Get.offNamed jika bagian dari bottom nav
+  }
+
+  void viewAllActivities() {
+     Get.snackbar('Aktivitas', 'Menampilkan semua aktivitas...', snackPosition: SnackPosition.BOTTOM);
+     // Navigasi ke halaman daftar semua aktivitas
+  }
+
+  Color parseColor(String hexColor) {
+    try {
+      hexColor = hexColor.toUpperCase().replaceAll("#", "");
+      if (hexColor.length == 6) hexColor = "FF$hexColor";
+      return Color(int.parse(hexColor, radix: 16));
+    } catch (e) {
+      return const Color(0xFFD84040);
+    }
   }
 }

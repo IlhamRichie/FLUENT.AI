@@ -1,3 +1,4 @@
+import 'package:fluent_ai/app/data/services/user_service.dart';
 import 'package:fluent_ai/app/modules/navbar/bindings/navbar_binding.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,12 +12,15 @@ void main() async {
     GoogleFonts.montserrat(),
   ]);
 
+  // Initialize services and controllers
+  await Get.putAsync(() => UserService().init());
+  
   runApp(
     GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Fluent",
       initialRoute: AppPages.INITIAL,
-      initialBinding: NavbarBinding(),
+      initialBinding: NavbarBinding(), // This will initialize NavbarController
       getPages: AppPages.routes,
       theme: ThemeData(
         textTheme: GoogleFonts.montserratTextTheme(
@@ -24,8 +28,7 @@ void main() async {
             displayLarge: TextStyle(fontSize: 96, fontWeight: FontWeight.w300),
             displayMedium: TextStyle(fontSize: 60, fontWeight: FontWeight.w300),
             displaySmall: TextStyle(fontSize: 48, fontWeight: FontWeight.w400),
-            headlineMedium:
-                TextStyle(fontSize: 34, fontWeight: FontWeight.w400),
+            headlineMedium: TextStyle(fontSize: 34, fontWeight: FontWeight.w400),
             headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
             titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
             titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
@@ -38,13 +41,12 @@ void main() async {
           ),
         ),
       ),
-      // Fallback theme jika diperlukan
       darkTheme: ThemeData.dark().copyWith(
         textTheme: GoogleFonts.montserratTextTheme(
           ThemeData.dark().textTheme,
         ),
       ),
-      themeMode: ThemeMode.light, // Atur ke dark jika ingin dark mode default
+      themeMode: ThemeMode.light,
     ),
   );
 }
