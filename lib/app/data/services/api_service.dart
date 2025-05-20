@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.126.206:5000';
+  static const String baseUrl = 'http://127.0.0.1:5000/';
 
   // Helper function for handling requests
   static Future<dynamic> _handleRequest(
