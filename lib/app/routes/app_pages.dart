@@ -28,6 +28,8 @@ import '../modules/sertifikat_detail/bindings/sertifikat_detail_binding.dart';
 import '../modules/sertifikat_detail/views/sertifikat_detail_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
+import '../modules/virtualhrd/bindings/virtualhrd_binding.dart';
+import '../modules/virtualhrd/views/virtualhrd_view.dart';
 import '../modules/wawancara/bindings/wawancara_binding.dart';
 import '../modules/wawancara/views/wawancara_view.dart';
 
@@ -113,6 +115,11 @@ class AppPages {
       name: _Paths.LUPA,
       page: () => const LupaView(),
       binding: LupaBinding(),
+    ),
+    GetPage(
+      name: _Paths.VIRTUALHRD,
+      page: () => const VirtualhrdView(),
+      binding: VirtualhrdBinding(),
     ),
   ];
 }

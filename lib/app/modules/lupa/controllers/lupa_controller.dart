@@ -1,10 +1,10 @@
 // lib/app/modules/lupa/controllers/lupa_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// import 'package:fluent_ai/app/data/services/api_service.dart'; // Jika ada API call
+import 'package:fluent_ai/app/data/services/api_service.dart'; // Impor ApiService
+import 'package:lucide_icons/lucide_icons.dart'; // Untuk ikon di snackbar (opsional)
 
 class LupaPasswordController extends GetxController {
-  // Ganti nama class jika perlu
   final GlobalKey<FormState> forgotPasswordFormKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
 
@@ -12,11 +12,7 @@ class LupaPasswordController extends GetxController {
   final RxString successMessage = ''.obs;
   final RxString errorMessage = ''.obs;
 
-  // --- PERUBAHAN DI SINI ---
-  // Definisikan primaryColor secara manual ke warna merah yang diinginkan
-  // final Color primaryColor = Get.theme.colorScheme.primary; // Opsi jika tema sudah diatur
-  final Color primaryColor = const Color(0xFFa31d1d); // Warna merah konsisten
-  // --- AKHIR PERUBAHAN ---
+  final Color primaryColor = const Color(0xFFD84040); // Warna utama dari FluentAI
 
   @override
   void onClose() {
@@ -31,6 +27,7 @@ class LupaPasswordController extends GetxController {
     if (!GetUtils.isEmail(value)) {
       return 'Format email tidak valid.';
     }
+    errorMessage.value = ''; // Bersihkan error jika validasi lolos
     return null;
   }
 
@@ -44,42 +41,55 @@ class LupaPasswordController extends GetxController {
     errorMessage.value = '';
 
     try {
-      // --- Simulasi API Call ---
-      await Future.delayed(const Duration(seconds: 2));
-      // Ganti dengan pemanggilan ApiService.forgotPassword(email: emailController.text.trim());
+      final response = await ApiService.requestPasswordReset(emailController.text.trim());
 
-      // Contoh response sukses
-      final String userEmail = emailController.text.trim();
-      successMessage.value =
-          "Link reset password telah dikirim ke $userEmail. Silakan periksa kotak masuk dan folder spam Anda.";
-
-      // Contoh response error dari backend (jika email tidak terdaftar)
-      // errorMessage.value = "Email tidak terdaftar di sistem kami.";
-      // _showErrorSnackbar(errorMessage.value); // Panggil jika ada error dari backend
+      if (response['status'] == 'success') {
+        successMessage.value = response['message'] ?? // Ambil pesan dari backend
+            "Tautan reset password telah dikirim ke ${emailController.text.trim()}. Silakan periksa kotak masuk dan folder spam Anda.";
+      } else {
+        // Jika status bukan 'success', anggap sebagai error
+        errorMessage.value = response['message'] ?? "Gagal mengirim link reset. Email mungkin tidak terdaftar.";
+        // _showErrorSnackbar(errorMessage.value); // Snackbar sudah ditangani oleh _handleApiError jika throw
+      }
     } catch (e) {
-      errorMessage.value = "Terjadi kesalahan. Silakan coba lagi nanti.";
+      // Tangani error yang di-throw oleh _handleRequest (misal SocketException, TimeoutException, atau Map error)
+      String errorMsgToShow = "Terjadi kesalahan. Silakan coba lagi nanti.";
+      if (e is Map && e.containsKey('message')) {
+        errorMsgToShow = e['message'];
+      } else if (e is String) {
+        errorMsgToShow = e;
+      }
+      errorMessage.value = errorMsgToShow;
       debugPrint("Forgot Password Error: $e");
-      _showErrorSnackbar(errorMessage.value);
+      // Tidak perlu _showErrorSnackbar lagi jika errorMessage.value sudah di-set dan UI akan rebuild
     } finally {
       isLoading.value = false;
     }
   }
 
-  void _showErrorSnackbar(String message) {
-    Get.snackbar(
-      'Gagal',
-      message,
-      snackPosition: SnackPosition.TOP,
-      // Warna error bisa tetap merah yang lebih terang agar kontras
-      backgroundColor: Colors.red.shade600,
-      colorText: Colors.white,
-      borderRadius: 10,
-      margin: const EdgeInsets.all(12),
-      icon: const Icon(Icons.error_outline, color: Colors.white),
-    );
-  }
+  // Snackbar bisa dihilangkan jika errorMessage sudah ditampilkan di UI
+  // void _showErrorSnackbar(String message) {
+  //   Get.snackbar(
+  //     'Gagal',
+  //     message,
+  //     snackPosition: SnackPosition.TOP,
+  //     backgroundColor: Colors.red.shade600,
+  //     colorText: Colors.white,
+  //     borderRadius: 10,
+  //     margin: const EdgeInsets.all(12),
+  //     icon: const Icon(LucideIcons.alertTriangle, color: Colors.white), // Menggunakan LucideIcons
+  //   );
+  // }
 
   void backToLogin() {
-    Get.back(); // Kembali ke halaman sebelumnya (login)
+    // Sebelum kembali, reset state agar form bersih jika user kembali ke halaman ini
+    emailController.clear();
+    successMessage.value = '';
+    errorMessage.value = '';
+    isLoading.value = false;
+    if (forgotPasswordFormKey.currentState != null) {
+        forgotPasswordFormKey.currentState!.reset();
+    }
+    Get.back();
   }
 }

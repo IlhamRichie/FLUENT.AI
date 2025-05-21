@@ -1,10 +1,13 @@
-// lib/app/modules/profil/models/user_profile_model.dart
+// lib/app/modules/profil/models/profil_model.dart
+
 class UserProfileModel {
-  final String name;
+  String name; // Dijadikan non-nullable, karena akan diisi dari username jika name asli null
   final String email;
-  final String username;
-  final String avatarAsset; // Path ke aset avatar
+  String username; // Dijadikan non-nullable
+  String avatarAsset; // Dijadikan non-nullable, akan ada path default
   final String joinedDate;
+  String? gender; // Opsional
+  String? occupation; // Opsional
 
   UserProfileModel({
     required this.name,
@@ -12,5 +15,7 @@ class UserProfileModel {
     required this.username,
     required this.avatarAsset,
     required this.joinedDate,
+    this.gender, // Tambahkan parameter ini
+    this.occupation, // Tambahkan parameter ini
   });
 }

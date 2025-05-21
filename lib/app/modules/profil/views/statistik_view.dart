@@ -1,4 +1,3 @@
-// lib/app/modules/statistic/views/statistic_view.dart
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,10 +17,7 @@ class _StatisticViewState extends State<StatisticView> {
     if (kIsWeb) {
       return 'http://192.168.56.121:8501';
     } else {
-      // Android Emulator
       return 'http://192.168.56.121:8501';
-      // Untuk iOS Sim/Device fisik di jaringan sama, gunakan IP PC Anda
-      // return 'http://192.168.X.X:8501';
     }
   }
 
@@ -32,7 +28,7 @@ class _StatisticViewState extends State<StatisticView> {
   void initState() {
     super.initState();
 
-    _controller = WebViewController(); // Inisialisasi dasar
+    _controller = WebViewController();
 
     // --- MODIFIKASI KONFIGURASI CONTROLLER ---
     if (!kIsWeb) {
@@ -113,7 +109,7 @@ class _StatisticViewState extends State<StatisticView> {
                 value: _loadingPercentage / 100.0,
                 backgroundColor: Colors.grey[200],
                 valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary), // Menggunakan colorScheme
+                    Theme.of(context).colorScheme.primary),
               ),
             ),
         ],

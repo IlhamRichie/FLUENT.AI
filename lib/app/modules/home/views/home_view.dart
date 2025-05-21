@@ -1,8 +1,8 @@
 // lib/app/modules/home/views/home_view.dart
-import 'package:fluent_ai/app/data/services/user_service.dart';
+// import 'package:fluent_ai/app/data/services/user_service.dart'; // <-- HAPUS INI
 import 'package:fluent_ai/app/modules/home/controllers/home_controller.dart';
 import 'package:fluent_ai/app/modules/home/models/aktifitas_model.dart';
-import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart';
+import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart'; // Pastikan path ini benar
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -14,21 +14,17 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final Color primaryColor =
-        controller.parseColor('#D84040'); // Warna utama aplikasi Anda
+    final Color primaryColor = controller.parseColor('#D84040');
 
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Latar belakang lebih lembut
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 1,
-        shadowColor: Colors.grey[200],
         automaticallyImplyLeading: false,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset('assets/images/logo FLUENT.png',
-                height: 28, width: 28), // Ukuran logo disesuaikan
+            Image.asset('assets/images/logo FLUENT.png', height: 28, width: 28),
             const SizedBox(width: 8),
             Text('FLUENT',
                 style: TextStyle(
@@ -39,6 +35,7 @@ class HomeView extends GetView<HomeController> {
           ],
         ),
         actions: [
+          /* ... (actions tetap sama) ... */
           Stack(
             children: [
               IconButton(
@@ -51,8 +48,8 @@ class HomeView extends GetView<HomeController> {
                 tooltip: 'Notifikasi',
               ),
               Positioned(
-                // Indikator notifikasi (dummy)
-                right: 10, top: 10,
+                right: 10,
+                top: 10,
                 child: Container(
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
@@ -67,11 +64,11 @@ class HomeView extends GetView<HomeController> {
         ],
       ),
       body: Obx(() {
-        if (controller.isLoading.value && controller.activities.isEmpty) {
+        // Periksa isLoading DAN userName (sebagai indikasi data user sudah coba di-load)
+        if (controller.isLoading.value && controller.userName.value.isEmpty) {
           return _buildShimmerPage(theme);
         }
         return RefreshIndicator(
-          // Tambahkan RefreshIndicator
           onRefresh: controller.fetchHomeData,
           color: primaryColor,
           child: CustomScrollView(
@@ -90,16 +87,19 @@ class HomeView extends GetView<HomeController> {
               _buildSectionHeader(
                   'Rekomendasi Untukmu', LucideIcons.lightbulb, primaryColor),
               _buildPracticeRecommendations(theme, primaryColor),
-              const SliverToBoxAdapter(child: SizedBox(height: 30)),
+              const SliverToBoxAdapter(
+                  child: SizedBox(height: 30)), // Padding bawah
             ],
           ),
         );
       }),
-      bottomNavigationBar: const NavbarView(),
+      bottomNavigationBar:
+          const NavbarView(), // Pastikan NavbarView tidak bergantung pada UserService
     );
   }
 
   Widget _buildShimmerPage(ThemeData theme) {
+    // ... (kode _buildShimmerPage tetap sama)
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
@@ -110,7 +110,6 @@ class HomeView extends GetView<HomeController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              // Shimmer untuk Greeting
               children: [
                 Expanded(
                     child: Container(
@@ -134,7 +133,6 @@ class HomeView extends GetView<HomeController> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(6))),
             const SizedBox(height: 24),
-            // Shimmer untuk Stats Section
             Container(
                 height: 150,
                 width: double.infinity,
@@ -142,7 +140,6 @@ class HomeView extends GetView<HomeController> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16))),
             const SizedBox(height: 24),
-            // Shimmer untuk Section Header
             Container(
                 height: 20,
                 width: 200,
@@ -150,7 +147,6 @@ class HomeView extends GetView<HomeController> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(6))),
             const SizedBox(height: 16),
-            // Shimmer untuk Quick Actions Grid
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -158,7 +154,7 @@ class HomeView extends GetView<HomeController> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                childAspectRatio: 1.1,
+                childAspectRatio: 1.1, // Disesuaikan agar lebih baik
               ),
               itemCount: 4,
               itemBuilder: (context, index) => Container(
@@ -174,7 +170,6 @@ class HomeView extends GetView<HomeController> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(6))),
             const SizedBox(height: 16),
-            // Shimmer untuk List Aktivitas
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -194,10 +189,10 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildSectionHeader(String title, IconData icon, Color color,
       {VoidCallback? onViewAll}) {
+    // ... (kode _buildSectionHeader tetap sama)
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-            20, 24, 16, 12), // Disesuaikan padding kanan
+        padding: const EdgeInsets.fromLTRB(20, 24, 16, 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -231,7 +226,6 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildGreetingSection(ThemeData theme) {
-    // UserService sudah di-inject dan bisa diakses via controller.userService
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
@@ -239,8 +233,9 @@ class HomeView extends GetView<HomeController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Obx(() => Text(
-                  // Menggunakan controller untuk username dari UserService
-                  'Hi, ${controller.userService.username.value}! 👋',
+                  // Bungkus dengan Obx
+                  // Menggunakan controller.userName.value yang di-load dari storage
+                  'Hi, ${controller.userName.value.isNotEmpty ? controller.userName.value : "Pengguna"}! 👋',
                   style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
@@ -248,7 +243,7 @@ class HomeView extends GetView<HomeController> {
                 )),
             const SizedBox(height: 6),
             Text(
-              'Selamat datang kembali! Siap untuk latihan dan jadi lebih fasih?',
+              'Siap untuk latihan hari ini?',
               style:
                   TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.4),
             ),
@@ -257,6 +252,10 @@ class HomeView extends GetView<HomeController> {
       ),
     );
   }
+
+  // ... (Widget _buildStatsSection, _buildStatItem, _buildQuickActionsGrid,
+  //      _buildQuickActionCard, _buildLatestActivitiesList, _buildActivityItem,
+  //      _buildPracticeRecommendations tetap sama)
 
   Widget _buildStatsSection(ThemeData theme, Color primaryColor) {
     return SliverToBoxAdapter(
@@ -267,19 +266,18 @@ class HomeView extends GetView<HomeController> {
           shadowColor: primaryColor.withOpacity(0.2),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          color: Colors.white, // Bisa juga primaryColor.withOpacity(0.05)
+          color: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
                 Obx(() => Row(
-                      // Obx untuk statistik
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _buildStatItem(
                             icon: LucideIcons.activity,
-                            value:
-                                '${controller.averageScore.value.toStringAsFixed(1)}',
+                            value: controller.averageScore.value
+                                .toStringAsFixed(1),
                             label: 'Rata-rata',
                             color: Colors.amber.shade700),
                         _buildStatItem(
@@ -296,7 +294,6 @@ class HomeView extends GetView<HomeController> {
                     )),
                 const SizedBox(height: 20),
                 Obx(() => Column(
-                      // Obx untuk progress bar
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
@@ -367,12 +364,10 @@ class HomeView extends GetView<HomeController> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: MediaQuery.of(Get.context!).size.width > 450
-              ? 4
-              : 2, // Lebih responsif
+          crossAxisCount: MediaQuery.of(Get.context!).size.width > 450 ? 4 : 2,
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          childAspectRatio: 0.6, // Kartu dibuat lebih persegi
+          childAspectRatio: 1.0, // Disesuaikan agar kartu tidak terlalu tinggi
         ),
         delegate: SliverChildListDelegate(
           controller.quickActionItems
@@ -381,8 +376,7 @@ class HomeView extends GetView<HomeController> {
                     title: item['title'] as String,
                     color: controller.parseColor(item['colorHex'] as String),
                     onTap: item['navigateTo'] != null
-                        ? () => controller
-                            .navigateToLatihanPage() // Navigasi ke halaman Latihan
+                        ? () => controller.navigateToLatihanPage()
                         : () => controller
                             .navigateToPractice(item['practiceType'] as String),
                   ))
@@ -435,14 +429,12 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildLatestActivitiesList(ThemeData theme) {
     return Obx(() {
-      // Obx untuk activities
       if (controller.activities.isEmpty)
         return const SliverToBoxAdapter(child: SizedBox.shrink());
       return SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            // Hanya tampilkan maksimal 3 aktivitas di home
-            if (index >= 3) return null;
+            if (index >= 3) return null; // Hanya tampilkan 3
             return Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: _buildActivityItem(controller.activities[index], theme),
@@ -495,8 +487,12 @@ class HomeView extends GetView<HomeController> {
                 style: TextStyle(fontSize: 11, color: Colors.grey[600])),
           ],
         ),
-        onTap: () => Get.toNamed('/activity-detail',
-            arguments: activity), // Pastikan route ini ada
+        onTap: () {
+          // Navigasi ke detail aktivitas jika ada
+          // Get.toNamed('/activity-detail', arguments: activity);
+          Get.snackbar("Info", "Detail aktivitas: ${activity.title}",
+              snackPosition: SnackPosition.BOTTOM);
+        },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
@@ -511,7 +507,7 @@ class HomeView extends GetView<HomeController> {
           shadowColor: Colors.amber.withOpacity(0.2),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          color: Colors.amber.shade50, // Warna latar yang lembut
+          color: Colors.amber.shade50,
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -531,7 +527,6 @@ class HomeView extends GetView<HomeController> {
                 ),
                 const SizedBox(height: 12),
                 Obx(() => Text(
-                      // Obx untuk recommendationText
                       controller.recommendationText.value,
                       style: TextStyle(
                           color: Colors.brown.shade700,
@@ -540,7 +535,6 @@ class HomeView extends GetView<HomeController> {
                     )),
                 const SizedBox(height: 16),
                 Obx(() => Wrap(
-                      // Obx untuk practiceTypes
                       spacing: 10,
                       runSpacing: 8,
                       children: controller.practiceTypes

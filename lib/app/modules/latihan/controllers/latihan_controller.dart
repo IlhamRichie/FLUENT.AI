@@ -50,11 +50,10 @@ class LatihanController extends GetxController {
 
   void _loadKategoriLatihan() {
     semuaKategoriLatihan.assignAll([
-      KategoriLatihanModel(id: 'cat-1', nama: 'Wawancara Kerja', deskripsi: 'Simulasi tanya jawab untuk persiapan wawancara.', ikon: 'briefcase', warna: '#2980B9', level: ['Pemula', 'Menengah'], jumlahSesi: 12),
-      KategoriLatihanModel(id: 'cat-2', nama: 'Public Speaking', deskripsi: 'Latih kemampuan berbicara di depan umum.', ikon: 'mic2', warna: '#27AE60', level: ['Menengah', 'Mahir'], jumlahSesi: 8),
-      KategoriLatihanModel(id: 'cat-3', nama: 'Ekspresi & Intonasi', deskripsi: 'Tingkatkan cara penyampaian pesan verbal.', ikon: 'smile', warna: '#E67E22', level: ['Pemula'], jumlahSesi: 5),
-      KategoriLatihanModel(id: 'cat-4', nama: 'Debat Terstruktur', deskripsi: 'Asah argumen dan kemampuan berpikir kritis.', ikon: 'swords', warna: '#8E44AD', level: ['Mahir'], jumlahSesi: 7),
-      KategoriLatihanModel(id: 'cat-5', nama: 'Percakapan Harian', deskripsi: 'Latihan dialog untuk situasi sehari-hari.', ikon: 'messagesSquare', warna: '#F39C12', level: ['Pemula', 'Menengah'], jumlahSesi: 15),
+      KategoriLatihanModel(id: 'cat-1', nama: 'Narasi AI', deskripsi: 'Simulasi tanya jawab untuk persiapan wawancara.', ikon: 'briefcase', warna: '#2980B9', level: ['Pemula', 'Menengah'], jumlahSesi: 12),
+      KategoriLatihanModel(id: 'cat-2', nama: 'Virtual HRD', deskripsi: 'Latih kemampuan berbicara di depan umum.', ikon: 'mic2', warna: '#27AE60', level: ['Menengah', 'Mahir'], jumlahSesi: 8),
+      KategoriLatihanModel(id: 'cat-3', nama: 'Ekspresi AI', deskripsi: 'Tingkatkan cara penyampaian pesan verbal.', ikon: 'smile', warna: '#E67E22', level: ['Pemula'], jumlahSesi: 5),
+      KategoriLatihanModel(id: 'cat-4', nama: 'Diskusi AI', deskripsi: 'Asah argumen dan kemampuan berpikir kritis.', ikon: 'swords', warna: '#8E44AD', level: ['Mahir'], jumlahSesi: 7),
     ]);
   }
 

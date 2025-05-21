@@ -4,25 +4,31 @@ import 'package:fluent_ai/app/modules/home/models/tipe_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:fluent_ai/app/data/services/user_service.dart';
-// import 'package:fluent_ai/app/routes/app_pages.dart'; // Jika ingin navigasi ke /latihan
+// import 'package:fluent_ai/app/data/services/user_service.dart'; // <-- HAPUS INI
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Import Secure Storage
+import 'dart:convert'; // Import dart:convert
+// import 'package:fluent_ai/app/data/services/api_service.dart'; // Jika perlu panggil API
 
 class HomeController extends GetxController {
   final isLoading = true.obs;
-  final UserService userService =
-      Get.find<UserService>(); // Dapatkan instance UserService
+  // final UserService userService = Get.find<UserService>(); // <-- HAPUS INI
+  final FlutterSecureStorage _storage =
+      const FlutterSecureStorage(); // Tambahkan storage
 
-  // Data Observables
+  // Data Observables untuk info pengguna dari storage
+  final RxString userName = ''.obs;
+  final RxString userAvatar = ''.obs; // Jika Anda menyimpan URL avatar
+
+  // Data Observables (tetap sama)
   final averageScore = 0.0.obs;
   final consecutiveDays = 0.obs;
   final tokens = 0.obs;
-  final overallProgress = 0.0.obs; // Untuk progress bar utama
+  final overallProgress = 0.0.obs;
 
   final RxList<ActivityModel> activities = <ActivityModel>[].obs;
   final RxList<PracticeTypeModel> practiceTypes = <PracticeTypeModel>[].obs;
   final recommendationText = ''.obs;
 
-  // Quick Actions Data (bisa statis atau dari remote)
   final List<Map<String, dynamic>> quickActionItems = [
     {
       'title': 'Wawancara',
@@ -47,25 +53,48 @@ class HomeController extends GetxController {
       'icon': LucideIcons.layoutGrid,
       'colorHex': '#9B59B6',
       'navigateTo': '/latihan'
-    }, // Rute ke halaman Latihan
+    },
   ];
 
   @override
   void onInit() {
     super.onInit();
+    _loadUserData(); // Panggil method untuk load user data
     fetchHomeData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final storedUserData = await _storage.read(key: 'user_data');
+      if (storedUserData != null) {
+        final userDataMap = jsonDecode(storedUserData) as Map<String, dynamic>;
+        userName.value = userDataMap['username'] ?? 'Pengguna';
+        userAvatar.value = userDataMap['profile_picture'] ??
+            ''; // Path ke default avatar jika null
+        // Anda bisa load data lain seperti email, dll jika diperlukan di Home
+        debugPrint("Home: User data loaded - ${userName.value}");
+      } else {
+        userName.value = 'Pengguna'; // Default jika tidak ada data
+        debugPrint("Home: No user data found in storage.");
+      }
+    } catch (e) {
+      debugPrint("Home: Error loading user data from storage: $e");
+      userName.value = 'Pengguna';
+    }
   }
 
   Future<void> fetchHomeData() async {
     isLoading.value = true;
-    await Future.delayed(
-        const Duration(milliseconds: 1800)); // Simulasi loading
+    // Panggil _loadUserData di sini juga untuk memastikan data user ada sebelum load data home lain
+    // atau pastikan _loadUserData selesai sebelum fetchHomeData dijalankan jika ada dependensi.
+    // Untuk contoh ini, kita anggap _loadUserData di onInit cukup.
 
-    // Isi data dummy
+    await Future.delayed(const Duration(milliseconds: 1800));
+
     averageScore.value = 82.5;
     consecutiveDays.value = 12;
     tokens.value = 1500;
-    overallProgress.value = 0.78; // 78%
+    overallProgress.value = 0.78;
 
     activities.assignAll([
       ActivityModel(
@@ -90,7 +119,6 @@ class HomeController extends GetxController {
           icon: LucideIcons.smile,
           colorHex: '#E67E22'),
     ]);
-
     practiceTypes.assignAll([
       PracticeTypeModel(id: 'pt1', title: 'Kecepatan Bicara'),
       PracticeTypeModel(id: 'pt2', title: 'Pengurangan Filler Words'),
@@ -103,6 +131,7 @@ class HomeController extends GetxController {
   }
 
   void navigateToPractice(String practiceType) {
+    /* ... (tetap sama) ... */
     Get.snackbar(
       'Mulai Latihan Cepat',
       'Navigasi ke latihan: $practiceType',
@@ -112,23 +141,17 @@ class HomeController extends GetxController {
           .withOpacity(0.9),
       colorText: Colors.white,
     );
-    // Implementasi navigasi ke halaman latihan spesifik
-    // Contoh: Get.toNamed('/latihan/detail', arguments: {'type': practiceType});
   }
 
-  void navigateToLatihanPage() {
-    // Pastikan Anda punya route '/latihan' yang terdefinisi
-    Get.toNamed(
-        '/latihan'); // Menggunakan Get.toNamed jika ini halaman baru, atau Get.offNamed jika bagian dari bottom nav
-  }
-
+  void navigateToLatihanPage() => Get.toNamed('/latihan');
   void viewAllActivities() {
+    /* ... (tetap sama) ... */
     Get.snackbar('Aktivitas', 'Menampilkan semua aktivitas...',
         snackPosition: SnackPosition.BOTTOM);
-    // Navigasi ke halaman daftar semua aktivitas
   }
 
   Color parseColor(String hexColor) {
+    /* ... (tetap sama) ... */
     try {
       hexColor = hexColor.toUpperCase().replaceAll("#", "");
       if (hexColor.length == 6) hexColor = "FF$hexColor";

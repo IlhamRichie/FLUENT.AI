@@ -18,6 +18,7 @@ abstract class Routes {
   static const SERTIFIKAT_DETAIL = _Paths.SERTIFIKAT_DETAIL;
   static const WAWANCARA = _Paths.WAWANCARA;
   static const LUPA = _Paths.LUPA;
+  static const VIRTUALHRD = _Paths.VIRTUALHRD;
 }
 
 abstract class _Paths {
@@ -37,4 +38,5 @@ abstract class _Paths {
   static const SERTIFIKAT_DETAIL = '/sertifikat-detail';
   static const WAWANCARA = '/wawancara';
   static const LUPA = '/lupa';
+  static const VIRTUALHRD = '/virtualhrd';
 }

@@ -1,14 +1,20 @@
 // lib/app/modules/register/controllers/register_controller.dart
 import 'dart:async';
-// import 'dart:convert'; // Tidak digunakan di sini jika tidak ada user_data dari Google
+// import 'dart:convert'; // Tidak digunakan
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:fluent_ai/app/data/services/api_service.dart'; // Pastikan path ini benar
-import 'package:fluent_ai/app/routes/app_pages.dart'; // Pastikan path ini benar
+import 'package:fluent_ai/app/data/services/api_service.dart';
+import 'package:fluent_ai/app/routes/app_pages.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:google_sign_in/google_sign_in.dart'; // Tambahkan ini
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Untuk menyimpan data setelah login Google
+import 'dart:convert'; // Untuk encode/decode JSON
+import 'package:flutter/services.dart'; // Untuk PlatformException
+import 'package:http/http.dart' as http_pkg; // Untuk ClientException
+import 'dart:io'; // Untuk SocketException
 
 class RegisterController extends GetxController {
-  final ApiService _apiService = ApiService();
+  // final ApiService _apiService = ApiService(); // ApiService static, tidak perlu instance
 
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
@@ -19,7 +25,6 @@ class RegisterController extends GetxController {
 
   final RxString selectedGender = 'Pria'.obs;
   final List<String> genders = ['Pria', 'Wanita', 'Lainnya'];
-
   final RxString selectedJob = 'Pelajar/Mahasiswa'.obs;
   final List<String> jobs = [
     'Pelajar/Mahasiswa',
@@ -45,6 +50,10 @@ class RegisterController extends GetxController {
   ];
   Timer? _textRotationTimer;
 
+  // Untuk Google Sign-In
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
   @override
   void onInit() {
     super.onInit();
@@ -62,15 +71,13 @@ class RegisterController extends GetxController {
   }
 
   void _startTextRotation() {
-    if (_textRotationTimer == null || !_textRotationTimer!.isActive) {
-      _textRotationTimer =
-          Timer.periodic(const Duration(seconds: 4), (Timer timer) {
-        if (headerTexts.isNotEmpty) {
-          currentTextIndex.value =
-              (currentTextIndex.value + 1) % headerTexts.length;
-        }
-      });
-    }
+    _textRotationTimer ??=
+        Timer.periodic(const Duration(seconds: 4), (Timer timer) {
+      if (headerTexts.isNotEmpty) {
+        currentTextIndex.value =
+            (currentTextIndex.value + 1) % headerTexts.length;
+      }
+    });
   }
 
   void _handleApiError(dynamic e, String defaultMessage) {
@@ -79,20 +86,37 @@ class RegisterController extends GetxController {
       messageToShow = e['message'].toString();
     } else if (e is String && e.isNotEmpty) {
       messageToShow = e;
+    } else if (e is http_pkg.ClientException) {
+      messageToShow = "Terjadi gangguan koneksi. Periksa internet Anda.";
+    } else if (e is SocketException) {
+      messageToShow = "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
+    } else if (e is PlatformException) {
+      if (e.code == 'sign_in_canceled') {
+        messageToShow = 'Login Google dibatalkan.';
+      } else if (e.code == 'network_error') {
+        messageToShow =
+            'Kesalahan jaringan saat login Google. Periksa koneksi Anda.';
+      } else {
+        messageToShow = 'Gagal login dengan Google: ${e.message ?? e.code}';
+      }
+    } else if (e is TimeoutException) {
+      messageToShow = "Waktu koneksi habis. Silakan coba lagi.";
     }
+
     errorMessage.value = messageToShow;
-    debugPrint('API Error (Register): $e');
-    // Tampilkan Snackbar error juga jika diperlukan
-    // Get.snackbar(
-    //   'Registrasi Gagal',
-    //   messageToShow,
-    //   snackPosition: SnackPosition.TOP,
-    //   backgroundColor: Colors.red.shade600,
-    //   colorText: Colors.white,
-    //   borderRadius: 10,
-    //   margin: const EdgeInsets.all(12),
-    //   icon: const Icon(LucideIcons.alertTriangle, color: Colors.white),
-    // );
+    debugPrint('API Error (Register): $messageToShow. Original error: $e');
+    Get.snackbar(
+      'Registrasi Gagal',
+      messageToShow,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red.shade600,
+      colorText: Colors.white,
+      borderRadius: 10,
+      margin: const EdgeInsets.all(12),
+      icon: const Icon(LucideIcons.alertTriangle, color: Colors.white),
+    );
+    if (isLoading.value) isLoading.value = false;
+    if (isGoogleLoading.value) isGoogleLoading.value = false;
   }
 
   void _showSuccessSnackbar(String title, String message) {
@@ -108,19 +132,40 @@ class RegisterController extends GetxController {
     );
   }
 
+  Future<void> _processSuccessfulGoogleLogin(String accessToken,
+      String? refreshToken, Map<String, dynamic> userDataMap) async {
+    try {
+      await _storage.write(key: 'access_token', value: accessToken);
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        await _storage.write(key: 'refresh_token', value: refreshToken);
+      }
+      await _storage.write(key: 'user_data', value: jsonEncode(userDataMap));
+
+      errorMessage.value = '';
+      _showSuccessSnackbar("Login Google Berhasil!",
+          "Selamat datang, ${userDataMap['username'] ?? userDataMap['email'] ?? ''}!");
+      Get.offAllNamed(Routes.HOME);
+    } catch (e) {
+      _handleApiError(e, "Gagal menyimpan sesi login Google Anda.");
+    } finally {
+      isGoogleLoading.value = false;
+    }
+  }
+
   void togglePasswordVisibility() => obscureText.value = !obscureText.value;
   void toggleConfirmPasswordVisibility() =>
       obscureConfirmText.value = !obscureConfirmText.value;
-
   String? validateUsername(String? value) {
+    /* ... (tetap sama) ... */
     if (value == null || value.isEmpty)
-      return 'Nama lengkap tidak boleh kosong.';
-    if (value.length < 3) return 'Nama minimal 3 karakter.';
+      return 'Nama pengguna tidak boleh kosong.';
+    if (value.length < 3) return 'Nama pengguna minimal 3 karakter.';
     errorMessage.value = '';
     return null;
   }
 
   String? validateEmail(String? value) {
+    /* ... (tetap sama) ... */
     if (value == null || value.isEmpty) return 'Email tidak boleh kosong.';
     if (!GetUtils.isEmail(value)) return 'Format email tidak valid.';
     errorMessage.value = '';
@@ -128,6 +173,7 @@ class RegisterController extends GetxController {
   }
 
   String? validatePassword(String? value) {
+    /* ... (tetap sama) ... */
     if (value == null || value.isEmpty) return 'Password tidak boleh kosong.';
     if (value.length < 6) return 'Password minimal 6 karakter.';
     errorMessage.value = '';
@@ -135,6 +181,7 @@ class RegisterController extends GetxController {
   }
 
   String? validateConfirmPassword(String? value) {
+    /* ... (tetap sama) ... */
     if (value == null || value.isEmpty)
       return 'Konfirmasi password tidak boleh kosong.';
     if (value != passwordController.text) return 'Password tidak cocok.';
@@ -144,26 +191,22 @@ class RegisterController extends GetxController {
 
   Future<void> register() async {
     if (!(registerFormKey.currentState?.validate() ?? false)) return;
-
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
       final response = await ApiService.register(
-        // Pastikan _apiService.register ada jika ini digunakan
         email: emailController.text.trim(),
         username: usernameController.text.trim(),
         password: passwordController.text.trim(),
         gender: selectedGender.value,
         occupation: selectedJob.value,
       );
-
       if (response['status'] == 'success') {
         _showSuccessSnackbar(
             "Registrasi Berhasil!",
             response['message'] ??
                 "Akun Anda telah berhasil dibuat. Silakan login.");
-        Get.offNamed(Routes.LOGIN); // Arahkan ke login setelah berhasil daftar
+        Get.offNamed(Routes.LOGIN);
       } else {
         _handleApiError(
             response, response['message'] ?? 'Registrasi gagal. Coba lagi.');
@@ -171,67 +214,54 @@ class RegisterController extends GetxController {
     } catch (e) {
       _handleApiError(e, 'Terjadi kesalahan koneksi. Silakan coba lagi nanti.');
     } finally {
-      isLoading.value = false;
+      // isLoading.value = false; // Sudah dihandle di _handleApiError
     }
   }
 
-  // ================== MODIFIKASI UNTUK TOMBOL GOOGLE ==================
   Future<void> registerWithGoogle() async {
+    if (isGoogleLoading.value) return;
     isGoogleLoading.value = true;
-    errorMessage.value = ''; // Bersihkan error message sebelumnya
-
-    Get.dialog(
-      Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-                color: Colors.white, borderRadius: BorderRadius.circular(16)),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(color: primaryColor),
-                const SizedBox(height: 16),
-                const Text("Mengarahkan ke Beranda...",
-                    style: TextStyle(fontSize: 14)),
-              ],
-            ),
-          ),
-        ),
-      ),
-      barrierDismissible: false,
-    );
-
+    errorMessage.value = '';
     try {
-      // Tambahkan sedikit delay untuk simulasi loading
-      await Future.delayed(const Duration(milliseconds: 1500));
-
-      if (Get.isDialogOpen ?? false) {
-        // Cek apakah dialog masih terbuka
-        Get.back(); // Tutup dialog loading
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        _handleApiError(PlatformException(code: 'sign_in_canceled'),
+            'Login Google dibatalkan.');
+        return;
+      }
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+      if (idToken == null) {
+        _handleApiError(null, 'Gagal mendapatkan ID Token dari Google.');
+        return;
       }
 
-      // Langsung navigasi ke halaman HOME dan hapus semua halaman sebelumnya
-      Get.offAllNamed(Routes.HOME);
+      debugPrint(
+          "Google ID Token obtained for registration. Sending to backend...");
+      // Panggil endpoint yang sama dengan login, backend akan menghandle jika user belum ada
+      final response = await ApiService.signInWithGoogleToken(idToken);
+
+      if (response['status'] == 'success' &&
+          response.containsKey('access_token') &&
+          response.containsKey('user')) {
+        final userDataMap = response['user'] as Map<String, dynamic>;
+        // Backend Anda seharusnya membuat user jika belum ada, dan mengembalikan datanya
+        await _processSuccessfulGoogleLogin(
+            response['access_token'], response['refresh_token'], userDataMap);
+      } else {
+        _handleApiError(
+            response,
+            response['message'] ??
+                'Registrasi/Login dengan Google gagal setelah verifikasi server.');
+      }
     } catch (e) {
-      if (Get.isDialogOpen ?? false) {
-        Get.back(); // Pastikan dialog ditutup jika ada error juga
-      }
-      // Anda mungkin ingin menampilkan pesan error di sini jika diperlukan
-      // _handleApiError(e, 'Gagal mengarahkan ke beranda.');
-      debugPrint("Error saat simulasi Google login: $e");
+      _handleApiError(
+          e, 'Terjadi kesalahan saat registrasi/login dengan Google.');
     } finally {
-      isGoogleLoading.value = false;
+      // isGoogleLoading.value = false; // Sudah dihandle
     }
   }
-  // ================== AKHIR MODIFIKASI UNTUK TOMBOL GOOGLE ==================
 
-  void navigateToLogin() {
-    // Jika dari halaman register mau ke login, pakai Get.offNamed agar register view dihilangkan dari stack
-    // Jika hanya Get.back() dan register dibuka dari login, maka akan kembali ke login.
-    // Tergantung alur navigasi yang Anda inginkan.
-    Get.offNamed(Routes.LOGIN);
-  }
+  void navigateToLogin() => Get.offNamed(Routes.LOGIN);
 }
