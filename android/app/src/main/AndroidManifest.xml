@@ -1,14 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Tambahkan permissions di sini (SEBELUM <application>) -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- Untuk Android 10+ (API 29+) tambahkan juga: -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <application
+    <application  
         android:label="fluent_ai"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/launcher_icon"
+        android:enableOnBackInvokedCallback="true"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

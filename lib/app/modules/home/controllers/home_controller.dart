@@ -9,7 +9,8 @@ import 'package:fluent_ai/app/data/services/user_service.dart';
 
 class HomeController extends GetxController {
   final isLoading = true.obs;
-  final UserService userService = Get.find<UserService>(); // Dapatkan instance UserService
+  final UserService userService =
+      Get.find<UserService>(); // Dapatkan instance UserService
 
   // Data Observables
   final averageScore = 0.0.obs;
@@ -23,10 +24,30 @@ class HomeController extends GetxController {
 
   // Quick Actions Data (bisa statis atau dari remote)
   final List<Map<String, dynamic>> quickActionItems = [
-    {'title': 'Wawancara', 'icon': LucideIcons.briefcase, 'colorHex': '#3498DB', 'practiceType': 'Wawancara'},
-    {'title': 'Public Speaking', 'icon': LucideIcons.megaphone, 'colorHex': '#2ECC71', 'practiceType': 'Public Speaking'},
-    {'title': 'Ekspresi Wajah', 'icon': LucideIcons.smile, 'colorHex': '#E67E22', 'practiceType': 'Ekspresi'},
-    {'title': 'Semua Latihan', 'icon': LucideIcons.layoutGrid, 'colorHex': '#9B59B6', 'navigateTo': '/latihan'}, // Rute ke halaman Latihan
+    {
+      'title': 'Wawancara',
+      'icon': LucideIcons.briefcase,
+      'colorHex': '#3498DB',
+      'practiceType': 'Wawancara'
+    },
+    {
+      'title': 'Public Speaking',
+      'icon': LucideIcons.megaphone,
+      'colorHex': '#2ECC71',
+      'practiceType': 'Public Speaking'
+    },
+    {
+      'title': 'Ekspresi Wajah',
+      'icon': LucideIcons.smile,
+      'colorHex': '#E67E22',
+      'practiceType': 'Ekspresi'
+    },
+    {
+      'title': 'Semua Latihan',
+      'icon': LucideIcons.layoutGrid,
+      'colorHex': '#9B59B6',
+      'navigateTo': '/latihan'
+    }, // Rute ke halaman Latihan
   ];
 
   @override
@@ -37,7 +58,8 @@ class HomeController extends GetxController {
 
   Future<void> fetchHomeData() async {
     isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 1800)); // Simulasi loading
+    await Future.delayed(
+        const Duration(milliseconds: 1800)); // Simulasi loading
 
     // Isi data dummy
     averageScore.value = 82.5;
@@ -46,9 +68,27 @@ class HomeController extends GetxController {
     overallProgress.value = 0.78; // 78%
 
     activities.assignAll([
-      ActivityModel(id: 'act1', title: 'Simulasi Wawancara Teknis', date: 'Kemarin, 10:30', score: 88, icon: LucideIcons.briefcase, colorHex: '#3498DB'),
-      ActivityModel(id: 'act2', title: 'Presentasi Proyek Tim', date: '2 hari lalu, 15:00', score: 92, icon: LucideIcons.megaphone, colorHex: '#2ECC71'),
-      ActivityModel(id: 'act3', title: 'Latihan Intonasi Cerita', date: '3 hari lalu, 09:00', score: 78, icon: LucideIcons.smile, colorHex: '#E67E22'),
+      ActivityModel(
+          id: 'act1',
+          title: 'Simulasi Wawancara Teknis',
+          date: 'Kemarin, 10:30',
+          score: 88,
+          icon: LucideIcons.briefcase,
+          colorHex: '#3498DB'),
+      ActivityModel(
+          id: 'act2',
+          title: 'Presentasi Proyek Tim',
+          date: '2 hari lalu, 15:00',
+          score: 92,
+          icon: LucideIcons.megaphone,
+          colorHex: '#2ECC71'),
+      ActivityModel(
+          id: 'act3',
+          title: 'Latihan Intonasi Cerita',
+          date: '3 hari lalu, 09:00',
+          score: 78,
+          icon: LucideIcons.smile,
+          colorHex: '#E67E22'),
     ]);
 
     practiceTypes.assignAll([
@@ -56,7 +96,8 @@ class HomeController extends GetxController {
       PracticeTypeModel(id: 'pt2', title: 'Pengurangan Filler Words'),
       PracticeTypeModel(id: 'pt3', title: 'Kontak Mata'),
     ]);
-    recommendationText.value = 'Kamu tampil hebat! Fokus selanjutnya bisa pada variasi intonasi untuk membuat penyampaian lebih menarik.';
+    recommendationText.value =
+        'Kamu tampil hebat! Fokus selanjutnya bisa pada variasi intonasi untuk membuat penyampaian lebih menarik.';
 
     isLoading.value = false;
   }
@@ -66,7 +107,9 @@ class HomeController extends GetxController {
       'Mulai Latihan Cepat',
       'Navigasi ke latihan: $practiceType',
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: parseColor(quickActionItems.firstWhere((item) => item['title'] == practiceType)['colorHex']).withOpacity(0.9),
+      backgroundColor: parseColor(quickActionItems
+              .firstWhere((item) => item['title'] == practiceType)['colorHex'])
+          .withOpacity(0.9),
       colorText: Colors.white,
     );
     // Implementasi navigasi ke halaman latihan spesifik
@@ -74,13 +117,15 @@ class HomeController extends GetxController {
   }
 
   void navigateToLatihanPage() {
-     // Pastikan Anda punya route '/latihan' yang terdefinisi
-     Get.toNamed('/latihan'); // Menggunakan Get.toNamed jika ini halaman baru, atau Get.offNamed jika bagian dari bottom nav
+    // Pastikan Anda punya route '/latihan' yang terdefinisi
+    Get.toNamed(
+        '/latihan'); // Menggunakan Get.toNamed jika ini halaman baru, atau Get.offNamed jika bagian dari bottom nav
   }
 
   void viewAllActivities() {
-     Get.snackbar('Aktivitas', 'Menampilkan semua aktivitas...', snackPosition: SnackPosition.BOTTOM);
-     // Navigasi ke halaman daftar semua aktivitas
+    Get.snackbar('Aktivitas', 'Menampilkan semua aktivitas...',
+        snackPosition: SnackPosition.BOTTOM);
+    // Navigasi ke halaman daftar semua aktivitas
   }
 
   Color parseColor(String hexColor) {

@@ -1,56 +1,48 @@
-import 'dart:async';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+// Gantilah dengan Rute Login Sebenarnya jika ada
+// Misal: import 'package:fluent_ai/app/routes/app_pages.dart';
 
 class IntroController extends GetxController {
   final PageController pageController = PageController();
   final RxInt currentPage = 0.obs;
-  Timer? _timer;
 
-  final List<Map<String, String>> introData = [
+  final List<Map<String, dynamic>> introData = [
     {
-      "image": "assets/images/intro1.png",
-      "title": "Welcome to Fluent! 🚀",
-      "description": "Tingkatin skill ngomong lo biar makin pede!",
+      "image": "assets/images/intro1.png", // Ganti dengan path gambar relevan
+      "title": "Selamat Datang di FLUENT! 🚀",
+      "description":
+          "Partner AI pribadimu untuk menguasai seni berbicara dan berekspresi dengan fasih. Tingkatkan kepercayaan dirimu sekarang!",
+      "accentAlignment": Alignment.bottomLeft,
     },
     {
-      "image": "assets/images/intro2.png",
-      "title": "Cepat & Efektif! ⏩",
-      "description": "Latihan langsung pake AI, biar lo makin lancar ngomong.",
+      "image": "assets/images/intro2.png", // Ganti dengan path gambar relevan
+      "title": "Latih Ucapan & Ekspresimu! 🗣️✨",
+      "description":
+          "Asah intonasi, kejelasan vokal, dan ekspresi wajahmu. Dapatkan feedback instan untuk tampil memukau di setiap kesempatan penting.",
+      "accentAlignment": Alignment.topRight,
     },
     {
-      "image": "assets/images/intro3.png",
-      "title": "FLUENT pake Ai! 🤖",
-      "description": "Cek ekspresi lo & dapetin feedback real-time biar makin jago!",
+      "image": "assets/images/intro3.png", // Ganti dengan path gambar relevan
+      "title": "Simulasi Wawancara AI HRD! 💼🤖",
+      "description":
+          "Hadapi wawancara kerja tanpa gugup! Berlatih langsung dengan Virtual HRD kami dan dapatkan analisis mendalam untuk persiapan maksimal.",
+      "accentAlignment": Alignment.topLeft,
+    },
+    {
+      "image": "assets/images/logo FLUENT.png", // Ganti dengan path gambar relevan
+      "title": "Siap Jadi Pribadi Terampil? 💪🎯",
+      "description":
+          "Mulai perjalananmu bersama FLUENT sekarang! Buka pintu menuju peluang tak terbatas dan raih kesuksesan yang kamu impikan.",
+      "accentAlignment": Alignment.bottomRight,
     },
   ];
 
   @override
-  void onInit() {
-    super.onInit();
-    _startAutoScroll();
-  }
-
-  @override
   void onClose() {
-    _timer?.cancel();
     pageController.dispose();
     super.onClose();
-  }
-
-  void _startAutoScroll() {
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (currentPage.value < introData.length - 1) {
-        currentPage.value++;
-      } else {
-        currentPage.value = 0;
-      }
-      pageController.animateToPage(
-        currentPage.value,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    });
   }
 
   void onPageChanged(int index) {
@@ -58,6 +50,14 @@ class IntroController extends GetxController {
   }
 
   void navigateToLogin() {
-    Get.offNamed('/login');
+    // Ganti dengan navigasi ke halaman login/home yang sesungguhnya
+    // Contoh: Get.offAllNamed(Routes.LOGIN);
+    Get.offAllNamed('/login'); // Placeholder, ganti dengan rute yang benar
+    print("Navigating to Login/Home page...");
   }
 }
+
+// Placeholder untuk Routes, jika belum ada
+// class Routes {
+//   static const LOGIN = '/login';
+// }

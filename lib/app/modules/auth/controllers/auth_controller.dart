@@ -2,7 +2,6 @@ import 'package:fluent_ai/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/services/api_service.dart';
-import '../../home/views/home_view.dart';
 import '../../../data/services/user_service.dart';
 
 class AuthController extends GetxController {

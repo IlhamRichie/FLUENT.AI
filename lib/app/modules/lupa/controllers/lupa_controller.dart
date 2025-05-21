@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:fluent_ai/app/data/services/api_service.dart'; // Jika ada API call
 
-class LupaPasswordController extends GetxController { // Ganti nama class jika perlu
+class LupaPasswordController extends GetxController {
+  // Ganti nama class jika perlu
   final GlobalKey<FormState> forgotPasswordFormKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
 
@@ -11,9 +12,11 @@ class LupaPasswordController extends GetxController { // Ganti nama class jika p
   final RxString successMessage = ''.obs;
   final RxString errorMessage = ''.obs;
 
-  // Ambil primaryColor dari tema GetX atau definisikan manual
-  Color get primaryColor => Get.theme.colorScheme.primary;
-  // final Color primaryColor = const Color(0xFFD84040); // Atau definisikan manual
+  // --- PERUBAHAN DI SINI ---
+  // Definisikan primaryColor secara manual ke warna merah yang diinginkan
+  // final Color primaryColor = Get.theme.colorScheme.primary; // Opsi jika tema sudah diatur
+  final Color primaryColor = const Color(0xFFa31d1d); // Warna merah konsisten
+  // --- AKHIR PERUBAHAN ---
 
   @override
   void onClose() {
@@ -44,15 +47,15 @@ class LupaPasswordController extends GetxController { // Ganti nama class jika p
       // --- Simulasi API Call ---
       await Future.delayed(const Duration(seconds: 2));
       // Ganti dengan pemanggilan ApiService.forgotPassword(email: emailController.text.trim());
-      
+
       // Contoh response sukses
       final String userEmail = emailController.text.trim();
-      successMessage.value = "Link reset password telah dikirim ke $userEmail. Silakan periksa kotak masuk dan folder spam Anda.";
-      
+      successMessage.value =
+          "Link reset password telah dikirim ke $userEmail. Silakan periksa kotak masuk dan folder spam Anda.";
+
       // Contoh response error dari backend (jika email tidak terdaftar)
       // errorMessage.value = "Email tidak terdaftar di sistem kami.";
-      // _showErrorSnackbar(errorMessage.value);
-
+      // _showErrorSnackbar(errorMessage.value); // Panggil jika ada error dari backend
     } catch (e) {
       errorMessage.value = "Terjadi kesalahan. Silakan coba lagi nanti.";
       debugPrint("Forgot Password Error: $e");
@@ -63,10 +66,11 @@ class LupaPasswordController extends GetxController { // Ganti nama class jika p
   }
 
   void _showErrorSnackbar(String message) {
-     Get.snackbar(
+    Get.snackbar(
       'Gagal',
       message,
       snackPosition: SnackPosition.TOP,
+      // Warna error bisa tetap merah yang lebih terang agar kontras
       backgroundColor: Colors.red.shade600,
       colorText: Colors.white,
       borderRadius: 10,

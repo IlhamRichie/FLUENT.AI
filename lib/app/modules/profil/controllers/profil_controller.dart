@@ -2,10 +2,10 @@
 import 'package:fluent_ai/app/modules/profil/models/profil_model.dart';
 import 'package:fluent_ai/app/modules/profil/models/setting_model.dart';
 import 'package:fluent_ai/app/modules/profil/models/stats_model.dart';
+import 'package:fluent_ai/app/modules/profil/views/statistik_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-// import 'package:fluent_ai/app/routes/app_pages.dart'; // Jika ada navigasi ke login
 
 class ProfilController extends GetxController {
   final isLoading = true.obs;
@@ -13,9 +13,11 @@ class ProfilController extends GetxController {
   // Data Observables menggunakan Model
   final Rx<UserProfileModel?> userProfile = Rx<UserProfileModel?>(null);
   final Rx<UserStatsModel?> userStats = Rx<UserStatsModel?>(null);
-  final RxList<SettingsSectionModel> settingsOptions = <SettingsSectionModel>[].obs;
+  final RxList<SettingsSectionModel> settingsOptions =
+      <SettingsSectionModel>[].obs;
 
-  final Color primaryColor = const Color(0xFFD84040); // Warna utama aplikasi Anda
+  final Color primaryColor =
+      const Color(0xFFD84040); // Warna utama aplikasi Anda
 
   @override
   void onInit() {
@@ -25,13 +27,15 @@ class ProfilController extends GetxController {
 
   Future<void> fetchProfileData() async {
     isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 1200)); // Simulasi loading
+    await Future.delayed(
+        const Duration(milliseconds: 1200)); // Simulasi loading
 
     userProfile.value = UserProfileModel(
       name: 'Budi Doremi',
       email: 'budi.doremi@example.com',
       username: 'budidoremi99',
-      avatarAsset: 'assets/images/profil.png', // Ganti dengan path aset avatar Anda
+      avatarAsset:
+          'assets/images/profil.png', // Ganti dengan path aset avatar Anda
       joinedDate: '15 Januari 2024',
     );
 
@@ -44,19 +48,59 @@ class ProfilController extends GetxController {
 
     settingsOptions.assignAll([
       SettingsSectionModel(title: 'Akun', items: [
-        SettingsItemModel(title: 'Edit Profil', icon: LucideIcons.userCog, action: 'edit_profile'),
-        SettingsItemModel(title: 'Ubah Password', icon: LucideIcons.keyRound, action: 'change_password'),
-        SettingsItemModel(title: 'Preferensi Bahasa', icon: LucideIcons.languages, action: 'change_language', value: 'Indonesia'),
+        SettingsItemModel(
+            title: 'Edit Profil',
+            icon: LucideIcons.userCog,
+            action: 'edit_profile'),
+        SettingsItemModel(
+            title: 'Ubah Password',
+            icon: LucideIcons.keyRound,
+            action: 'change_password'),
+        SettingsItemModel(
+            title: 'Preferensi Bahasa',
+            icon: LucideIcons.languages,
+            action: 'change_language',
+            value: 'Indonesia'),
+        // --- PERUBAHAN DI SINI ---
+        SettingsItemModel(
+            title: 'Statistik BPS',
+            icon: LucideIcons.lineChart, // Mengganti ikon menjadi lebih relevan
+            action: 'show_bps_stats'), // Mengganti action
+        // value: 'Indonesia' dihapus karena tidak relevan lagi
+        // --- AKHIR PERUBAHAN ---
       ]),
       SettingsSectionModel(title: 'Notifikasi', items: [
-        SettingsItemModel(title: 'Notifikasi Umum', icon: LucideIcons.bellRing, action: 'toggle_general_notif', value: true, isSwitch: true),
-        SettingsItemModel(title: 'Notifikasi Latihan', icon: LucideIcons.dumbbell, action: 'toggle_practice_notif', value: false, isSwitch: true),
+        SettingsItemModel(
+            title: 'Notifikasi Umum',
+            icon: LucideIcons.bellRing,
+            action: 'toggle_general_notif',
+            value: true,
+            isSwitch: true),
+        SettingsItemModel(
+            title: 'Notifikasi Latihan',
+            icon: LucideIcons.dumbbell,
+            action: 'toggle_practice_notif',
+            value: false,
+            isSwitch: true),
       ]),
       SettingsSectionModel(title: 'Bantuan & Info', items: [
-        SettingsItemModel(title: 'Panduan Pengguna', icon: LucideIcons.bookOpen, action: 'show_guide'),
-        SettingsItemModel(title: 'Hubungi Kami', icon: LucideIcons.mailQuestion, action: 'contact_us'),
-        SettingsItemModel(title: 'Syarat & Ketentuan', icon: LucideIcons.fileText, action: 'show_terms'),
-        SettingsItemModel(title: 'Tentang Aplikasi', icon: LucideIcons.info, action: 'show_about', value: 'Versi 1.0.0'),
+        SettingsItemModel(
+            title: 'Panduan Pengguna',
+            icon: LucideIcons.bookOpen,
+            action: 'show_guide'),
+        SettingsItemModel(
+            title: 'Hubungi Kami',
+            icon: LucideIcons.mailQuestion,
+            action: 'contact_us'),
+        SettingsItemModel(
+            title: 'Syarat & Ketentuan',
+            icon: LucideIcons.fileText,
+            action: 'show_terms'),
+        SettingsItemModel(
+            title: 'Tentang Aplikasi',
+            icon: LucideIcons.info,
+            action: 'show_about',
+            value: 'Versi 1.0.0'),
       ]),
     ]);
 
@@ -74,12 +118,12 @@ class ProfilController extends GetxController {
             onPressed: () {
               Get.back(); // Tutup dialog
               // Lakukan proses logout (clear session, dll)
-              Get.offAllNamed('/login'); // Navigasi ke halaman login (pastikan route ada)
+              Get.offAllNamed(
+                  '/login'); // Navigasi ke halaman login (pastikan route ada)
               Get.snackbar('Logout', 'Anda telah berhasil logout.',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.green,
-                colorText: Colors.white
-              );
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white);
             },
             style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
             child: const Text('Logout', style: TextStyle(color: Colors.white)),
@@ -90,7 +134,7 @@ class ProfilController extends GetxController {
   }
 
   void showEditDialog() {
-     Get.defaultDialog(
+    Get.defaultDialog(
         title: "Edit Profil",
         titleStyle: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
         content: const Padding(
@@ -100,9 +144,7 @@ class ProfilController extends GetxController {
         confirm: ElevatedButton(
             onPressed: () => Get.back(),
             style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
-            child: const Text("Oke", style: TextStyle(color: Colors.white))
-        )
-    );
+            child: const Text("Oke", style: TextStyle(color: Colors.white))));
   }
 
   void toggleSetting(String action, bool value) {
@@ -111,7 +153,8 @@ class ProfilController extends GetxController {
       for (var item in section.items) {
         if (item.action == action && item.isSwitch) {
           item.value = value;
-          settingsOptions.refresh(); // Penting untuk memberitahu Obx agar rebuild
+          settingsOptions
+              .refresh(); // Penting untuk memberitahu Obx agar rebuild
           Get.snackbar(
             'Pengaturan Disimpan',
             '${item.title} telah diubah menjadi ${value ? "Aktif" : "Nonaktif"}.',
@@ -129,19 +172,29 @@ class ProfilController extends GetxController {
         showEditDialog();
         break;
       case 'change_password':
-        Get.snackbar('Ubah Password', 'Fitur ini akan segera hadir!', snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar('Ubah Password', 'Fitur ini akan segera hadir!',
+            snackPosition: SnackPosition.BOTTOM);
         break;
       case 'change_language':
-         Get.snackbar('Ubah Bahasa', 'Saat ini hanya mendukung Bahasa Indonesia.', snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+            'Ubah Bahasa', 'Saat ini hanya mendukung Bahasa Indonesia.',
+            snackPosition: SnackPosition.BOTTOM);
         break;
-      // Tambahkan case lain sesuai action
+      // --- PERUBAHAN DI SINI ---
+      case 'show_bps_stats':
+        Get.to(() => const StatisticView()); // Navigasi ke StatisticView
+        break;
+      // --- AKHIR PERUBAHAN ---
       default:
-        if (!item.isSwitch) { // Jangan tampilkan snackbar untuk switch karena sudah ada feedback dari toggleSetting
-          Get.snackbar(item.title, 'Anda mengetuk ${item.title}. Fitur akan datang!', snackPosition: SnackPosition.BOTTOM);
+        if (!item.isSwitch) {
+          Get.snackbar(
+              item.title, 'Anda mengetuk ${item.title}. Fitur akan datang!',
+              snackPosition: SnackPosition.BOTTOM);
         }
     }
   }
-   Color parseColor(String hexColor) {
+
+  Color parseColor(String hexColor) {
     try {
       hexColor = hexColor.toUpperCase().replaceAll("#", "");
       if (hexColor.length == 6) hexColor = "FF$hexColor";
