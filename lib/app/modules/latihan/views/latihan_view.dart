@@ -3,9 +3,10 @@ import 'package:fluent_ai/app/modules/latihan/controllers/latihan_controller.dar
 import 'package:fluent_ai/app/modules/latihan/models/item_model.dart';
 import 'package:fluent_ai/app/modules/latihan/models/kategori_models.dart';
 import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart';
-// Impor WawancaraIntroView dan Bindingnya
-import 'package:fluent_ai/app/modules/wawancara/views/wawanvara_intro_view.dart'; // Pastikan path ini benar
-import 'package:fluent_ai/app/modules/wawancara/bindings/wawancara_binding.dart'; // Pastikan path ini benar
+import 'package:fluent_ai/app/modules/virtualhrd/bindings/virtualhrd_binding.dart';
+import 'package:fluent_ai/app/modules/virtualhrd/views/virtualhrd_intro_view.dart';
+import 'package:fluent_ai/app/modules/wawancara/views/wawanvara_intro_view.dart';
+import 'package:fluent_ai/app/modules/wawancara/bindings/wawancara_binding.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -17,6 +18,7 @@ class LatihanView extends GetView<LatihanController> {
   // ... (build, _buildShimmerPage, _buildSectionHeader, _buildCategoryFilter, _buildKategoriGrid tetap sama) ...
   @override
   Widget build(BuildContext context) {
+    // ... (build method tetap sama)
     final Color primaryColor = controller.parseColor('#D84040');
 
     return Scaffold(
@@ -65,7 +67,6 @@ class LatihanView extends GetView<LatihanController> {
               _buildKategoriGrid(),
               Obx(() => controller.latihanTerbaru.isNotEmpty
                   ? SliverMainAxisGroup(
-                      // Gunakan SliverMainAxisGroup jika ada beberapa sliver
                       slivers: [
                         _buildSectionHeader('Lanjutkan Latihan Terakhir',
                             LucideIcons.history, primaryColor),
@@ -225,7 +226,7 @@ class LatihanView extends GetView<LatihanController> {
           controller.selectedCategory.value != 'Semua') {
         return SliverToBoxAdapter(
           child: Padding(
-            padding:
+            /* ... No category found ... */ padding:
                 const EdgeInsets.symmetric(vertical: 60.0, horizontal: 20.0),
             child: Center(
               child: Column(
@@ -244,7 +245,6 @@ class LatihanView extends GetView<LatihanController> {
           ),
         );
       }
-
       return SliverPadding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         sliver: SliverGrid(
@@ -256,9 +256,8 @@ class LatihanView extends GetView<LatihanController> {
             childAspectRatio: 0.8,
           ),
           delegate: SliverChildBuilderDelegate(
-            (context, index) => _buildKategoriCard(kategoriList[index]),
-            childCount: kategoriList.length,
-          ),
+              (context, index) => _buildKategoriCard(kategoriList[index]),
+              childCount: kategoriList.length),
         ),
       );
     });
@@ -275,48 +274,51 @@ class LatihanView extends GetView<LatihanController> {
       child: InkWell(
         onTap: () {
           String kategoriNamaLower = kategori.nama.toLowerCase();
+
+          // --- PERUBAHAN LOGIKA NAVIGASI ---
           if (kategoriNamaLower.contains('wawancara') ||
               kategoriNamaLower.contains('narasi ai')) {
+            // Kategori spesifik yang mengarah ke WawancaraIntroView
             Get.to(
               () => const WawancaraIntroView(),
               binding: WawancaraBinding(),
               arguments: {'kategori': kategori},
             );
           } else {
-            controller.startLatihanKategori(kategori);
+            // SEMUA KATEGORI LAINNYA akan mengarah ke VirtualhrdIntroView
+            // Ini termasuk "Virtual HRD", "Ekspresi AI", "Diskusi AI", "Public Speaking", "Debat Terstruktur", "Percakapan Harian" dll.
+            // jika tidak cocok dengan kondisi pertama.
+            Get.to(
+              () => const VirtualhrdIntroView(),
+              binding:
+                  VirtualhrdBinding(), // Pastikan binding ini meng-handle controller untuk Virtual HRD
+              arguments: {'kategori': kategori}, // Tetap kirim data kategori
+            );
           }
+          // --- AKHIR PERUBAHAN LOGIKA NAVIGASI ---
         },
         splashColor: color.withOpacity(0.2),
         highlightColor: color.withOpacity(0.1),
         child: Column(
-          // Column utama kartu
-          // crossAxisAlignment: CrossAxisAlignment.stretch, // Tidak perlu lagi jika child mengisi
+          // ... (Isi Column untuk tampilan kartu tetap sama)
           children: [
-            // Bagian Atas: Ikon dengan background gradien
             Container(
-              height:
-                  90, // Tinggi tetap atau bisa diatur dengan Flexible/Expanded
-              width: double.infinity, // Memastikan mengisi lebar kartu
+              height: 90,
+              width: double.infinity,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [color.withOpacity(0.75), color],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                // Tidak perlu borderRadius di sini karena Card sudah di-clip
-              ),
+                  gradient: LinearGradient(
+                colors: [color.withOpacity(0.75), color],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )),
               child: Center(
                   child: Icon(controller.getCategoryIcon(kategori.ikon),
                       color: Colors.white, size: 38)),
             ),
-
-            // Bagian Bawah: Teks dengan background putih
             Expanded(
-              // Expanded agar bagian ini mengisi sisa ruang vertikal
               child: Container(
-                color:
-                    Colors.white, // <--- Latar belakang putih untuk area teks
-                width: double.infinity, // Memastikan mengisi lebar kartu
+                color: Colors.white,
+                width: double.infinity,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                   child: Column(
@@ -332,20 +334,17 @@ class LatihanView extends GetView<LatihanController> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 3),
-                      // Gunakan Flexible untuk deskripsi agar tidak overflow jika terlalu panjang
-                      // dan memungkinkan Spacer bekerja dengan baik.
                       Flexible(
-                        child: Text(
-                          kategori.deskripsi,
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                              height: 1.25),
-                          maxLines: 2, // Atau 3 jika masih ada ruang
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const Spacer(), // Dorong info sesi & level ke bawah
+                          child: Text(
+                        kategori.deskripsi,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                            height: 1.25),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      )),
+                      const Spacer(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -354,7 +353,7 @@ class LatihanView extends GetView<LatihanController> {
                             '${kategori.jumlahSesi} Sesi',
                             style: TextStyle(
                                 fontSize: 11.5,
-                                color: color, // Warna teks sesi dari kategori
+                                color: color,
                                 fontWeight: FontWeight.w600),
                           ),
                           Flexible(
@@ -367,8 +366,7 @@ class LatihanView extends GetView<LatihanController> {
                                         label: Text(level,
                                             style: TextStyle(
                                               fontSize: 8.5,
-                                              color: color.withOpacity(
-                                                  0.95), // Warna chip dari kategori
+                                              color: color.withOpacity(0.95),
                                               fontWeight: FontWeight.w500,
                                             )),
                                         backgroundColor:
@@ -397,7 +395,7 @@ class LatihanView extends GetView<LatihanController> {
   }
 
   Widget _buildLatihanList() {
-    /* ... (kode tetap sama, pastikan onTap di _buildLatihanItem juga benar) ... */
+    // ... (kode tetap sama)
     return Obx(() {
       final latihanList = controller.latihanTerbaru;
       if (latihanList.isEmpty) {
@@ -418,8 +416,8 @@ class LatihanView extends GetView<LatihanController> {
   }
 
   Widget _buildLatihanItem(LatihanItemModel latihan) {
+    // ... (logika onTap di sini juga bisa disesuaikan jika perlu)
     final color = controller.parseColor(latihan.warna);
-
     return Card(
       elevation: 1.5,
       shadowColor: Colors.grey[200],
@@ -428,27 +426,26 @@ class LatihanView extends GetView<LatihanController> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          // --- PERUBAHAN DI SINI JUGA JIKA PERLU ---
-          // Jika item latihan dari kategori "Narasi AI" juga harus ke WawancaraIntroView
           String kategoriNamaLower = latihan.kategori.toLowerCase();
           if (kategoriNamaLower.contains('wawancara') ||
               kategoriNamaLower.contains('narasi ai')) {
-            Get.to(
-              () => const WawancaraIntroView(),
-              binding: WawancaraBinding(),
-              arguments: {'latihanItem': latihan}, // Kirim LatihanItemModel
-            );
+            Get.to(() => const WawancaraIntroView(),
+                binding: WawancaraBinding(),
+                arguments: {'latihanItem': latihan});
           } else {
-            // Untuk item latihan dari kategori lain
-            controller.startLatihanItem(latihan);
+            // Default untuk item latihan lain bisa ke Virtual HRD Intro atau logic lain
+            Get.to(() => const VirtualhrdIntroView(),
+                binding: VirtualhrdBinding(),
+                arguments: {'latihanItem': latihan});
+            // Atau jika ada item latihan yang tidak cocok ke WawancaraIntro atau VirtualHrdIntro:
+            // controller.startLatihanItem(latihan);
           }
-          // --- AKHIR PERUBAHAN ---
         },
         splashColor: color.withOpacity(0.1),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           child: Row(
-            /* ... (isi Row tetap sama seperti sebelumnya) ... */
+            // ... (Isi Row tetap sama)
             children: [
               Container(
                 padding: const EdgeInsets.all(12),

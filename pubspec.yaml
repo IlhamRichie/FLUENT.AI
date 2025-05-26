@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   app_links: ^6.4.0
+  avatar_glow: ^3.0.1
   awesome_snackbar_content: ^0.1.6
   camera: ^0.11.1
   cupertino_icons: ^1.0.8
@@ -52,6 +53,7 @@ dependencies:
   persistent_bottom_nav_bar: ^6.2.1
   persistent_bottom_nav_bar_v2: ^5.3.1
   shimmer: ^3.0.0
+  speech_to_text: ^7.0.0
   syncfusion_flutter_charts: ^29.1.38
   url_launcher: ^6.3.1
   webview_flutter: ^4.12.0
