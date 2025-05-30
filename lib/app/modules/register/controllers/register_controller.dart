@@ -1,37 +1,32 @@
 // lib/app/modules/register/controllers/register_controller.dart
 import 'dart:async';
-// import 'dart:convert'; // Tidak digunakan
+import 'package:fluent_ai/app/modules/otp/controllers/otp_controller.dart'; // Import OtpSource
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fluent_ai/app/data/services/api_service.dart';
 import 'package:fluent_ai/app/routes/app_pages.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:google_sign_in/google_sign_in.dart'; // Tambahkan ini
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Untuk menyimpan data setelah login Google
-import 'dart:convert'; // Untuk encode/decode JSON
-import 'package:flutter/services.dart'; // Untuk PlatformException
-import 'package:http/http.dart' as http_pkg; // Untuk ClientException
-import 'dart:io'; // Untuk SocketException
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert'; // Untuk jsonEncode
+import 'package:http/http.dart' as http_pkg; // Untuk ClientException (jika diperlukan untuk error handling spesifik)
+import 'dart:io'; // Untuk SocketException (jika diperlukan untuk error handling spesifik)
+import 'package:flutter/services.dart'; // Untuk PlatformException (Google Sign In)
+
 
 class RegisterController extends GetxController {
-  // final ApiService _apiService = ApiService(); // ApiService static, tidak perlu instance
-
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   final RxString selectedGender = 'Pria'.obs;
   final List<String> genders = ['Pria', 'Wanita', 'Lainnya'];
   final RxString selectedJob = 'Pelajar/Mahasiswa'.obs;
   final List<String> jobs = [
-    'Pelajar/Mahasiswa',
-    'Karyawan Swasta',
-    'Profesional',
-    'Wiraswasta',
-    'Lainnya'
+    'Pelajar/Mahasiswa', 'Karyawan Swasta', 'Profesional',
+    'Wiraswasta', 'Lainnya'
   ];
 
   final RxBool obscureText = true.obs;
@@ -40,7 +35,7 @@ class RegisterController extends GetxController {
   final RxBool isGoogleLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
-  Color get primaryColor => const Color(0xFFD84040);
+  Color get primaryColor => const Color(0xFFD84040); // Sesuaikan
 
   final RxInt currentTextIndex = 0.obs;
   final List<String> headerTexts = [
@@ -50,8 +45,10 @@ class RegisterController extends GetxController {
   ];
   Timer? _textRotationTimer;
 
-  // Untuk Google Sign-In
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    // serverClientId: 'YOUR_SERVER_CLIENT_ID', // Opsional jika backend memverifikasi ID Token
+  );
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   @override
@@ -71,11 +68,9 @@ class RegisterController extends GetxController {
   }
 
   void _startTextRotation() {
-    _textRotationTimer ??=
-        Timer.periodic(const Duration(seconds: 4), (Timer timer) {
+    _textRotationTimer ??= Timer.periodic(const Duration(seconds: 4), (Timer timer) {
       if (headerTexts.isNotEmpty) {
-        currentTextIndex.value =
-            (currentTextIndex.value + 1) % headerTexts.length;
+        currentTextIndex.value = (currentTextIndex.value + 1) % headerTexts.length;
       }
     });
   }
@@ -86,19 +81,12 @@ class RegisterController extends GetxController {
       messageToShow = e['message'].toString();
     } else if (e is String && e.isNotEmpty) {
       messageToShow = e;
-    } else if (e is http_pkg.ClientException) {
-      messageToShow = "Terjadi gangguan koneksi. Periksa internet Anda.";
-    } else if (e is SocketException) {
-      messageToShow = "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
+    } else if (e is http_pkg.ClientException || e is SocketException) {
+      messageToShow = "Gangguan koneksi. Periksa internet Anda.";
     } else if (e is PlatformException) {
-      if (e.code == 'sign_in_canceled') {
-        messageToShow = 'Login Google dibatalkan.';
-      } else if (e.code == 'network_error') {
-        messageToShow =
-            'Kesalahan jaringan saat login Google. Periksa koneksi Anda.';
-      } else {
-        messageToShow = 'Gagal login dengan Google: ${e.message ?? e.code}';
-      }
+      messageToShow = 'Gagal login dengan Google: ${e.message ?? e.code}';
+      if (e.code == 'sign_in_canceled') messageToShow = 'Login Google dibatalkan.';
+      if (e.code == 'network_error') messageToShow = 'Kesalahan jaringan saat login Google.';
     } else if (e is TimeoutException) {
       messageToShow = "Waktu koneksi habis. Silakan coba lagi.";
     }
@@ -106,34 +94,28 @@ class RegisterController extends GetxController {
     errorMessage.value = messageToShow;
     debugPrint('API Error (Register): $messageToShow. Original error: $e');
     Get.snackbar(
-      'Registrasi Gagal',
-      messageToShow,
+      'Registrasi Gagal', messageToShow,
       snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.red.shade600,
-      colorText: Colors.white,
-      borderRadius: 10,
-      margin: const EdgeInsets.all(12),
+      backgroundColor: Colors.red.shade600, colorText: Colors.white,
+      borderRadius: 10, margin: const EdgeInsets.all(12),
       icon: const Icon(LucideIcons.alertTriangle, color: Colors.white),
     );
-    if (isLoading.value) isLoading.value = false;
-    if (isGoogleLoading.value) isGoogleLoading.value = false;
+    isLoading.value = false; // Pastikan direset
+    isGoogleLoading.value = false; // Pastikan direset
   }
 
   void _showSuccessSnackbar(String title, String message) {
     Get.snackbar(
-      title,
-      message,
+      title, message,
       snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.green.shade600,
-      colorText: Colors.white,
-      borderRadius: 10,
-      margin: const EdgeInsets.all(12),
+      backgroundColor: Colors.green.shade600, colorText: Colors.white,
+      borderRadius: 10, margin: const EdgeInsets.all(12),
       icon: const Icon(LucideIcons.partyPopper, color: Colors.white),
     );
   }
 
-  Future<void> _processSuccessfulGoogleLogin(String accessToken,
-      String? refreshToken, Map<String, dynamic> userDataMap) async {
+  Future<void> _processSuccessfulLogin(String accessToken, String? refreshToken,
+      Map<String, dynamic> userDataMap, String providerName) async {
     try {
       await _storage.write(key: 'access_token', value: accessToken);
       if (refreshToken != null && refreshToken.isNotEmpty) {
@@ -141,52 +123,39 @@ class RegisterController extends GetxController {
       }
       await _storage.write(key: 'user_data', value: jsonEncode(userDataMap));
 
-      errorMessage.value = '';
-      _showSuccessSnackbar("Login Google Berhasil!",
+      _showSuccessSnackbar("$providerName Berhasil!",
           "Selamat datang, ${userDataMap['username'] ?? userDataMap['email'] ?? ''}!");
       Get.offAllNamed(Routes.HOME);
     } catch (e) {
-      _handleApiError(e, "Gagal menyimpan sesi login Google Anda.");
+      _handleApiError(e, "Gagal menyimpan sesi login Anda.");
     } finally {
+      isLoading.value = false;
       isGoogleLoading.value = false;
     }
   }
 
   void togglePasswordVisibility() => obscureText.value = !obscureText.value;
-  void toggleConfirmPasswordVisibility() =>
-      obscureConfirmText.value = !obscureConfirmText.value;
-  String? validateUsername(String? value) {
-    /* ... (tetap sama) ... */
-    if (value == null || value.isEmpty)
-      return 'Nama pengguna tidak boleh kosong.';
-    if (value.length < 3) return 'Nama pengguna minimal 3 karakter.';
-    errorMessage.value = '';
-    return null;
-  }
+  void toggleConfirmPasswordVisibility() => obscureConfirmText.value = !obscureConfirmText.value;
 
+  String? validateUsername(String? value) {
+    if (value == null || value.isEmpty) return 'Nama pengguna tidak boleh kosong.';
+    if (value.length < 3) return 'Nama pengguna minimal 3 karakter.';
+    errorMessage.value = ''; return null;
+  }
   String? validateEmail(String? value) {
-    /* ... (tetap sama) ... */
     if (value == null || value.isEmpty) return 'Email tidak boleh kosong.';
     if (!GetUtils.isEmail(value)) return 'Format email tidak valid.';
-    errorMessage.value = '';
-    return null;
+    errorMessage.value = ''; return null;
   }
-
   String? validatePassword(String? value) {
-    /* ... (tetap sama) ... */
     if (value == null || value.isEmpty) return 'Password tidak boleh kosong.';
     if (value.length < 6) return 'Password minimal 6 karakter.';
-    errorMessage.value = '';
-    return null;
+    errorMessage.value = ''; return null;
   }
-
   String? validateConfirmPassword(String? value) {
-    /* ... (tetap sama) ... */
-    if (value == null || value.isEmpty)
-      return 'Konfirmasi password tidak boleh kosong.';
+    if (value == null || value.isEmpty) return 'Konfirmasi password tidak boleh kosong.';
     if (value != passwordController.text) return 'Password tidak cocok.';
-    errorMessage.value = '';
-    return null;
+    errorMessage.value = ''; return null;
   }
 
   Future<void> register() async {
@@ -201,66 +170,64 @@ class RegisterController extends GetxController {
         gender: selectedGender.value,
         occupation: selectedJob.value,
       );
+      isLoading.value = false; // Set loading false setelah API call selesai
+
       if (response['status'] == 'success') {
         _showSuccessSnackbar(
-            "Registrasi Berhasil!",
-            response['message'] ??
-                "Akun Anda telah berhasil dibuat. Silakan login.");
-        Get.offNamed(Routes.LOGIN);
+          "Registrasi Berhasil!",
+          response['message'] ?? "Kode OTP telah dikirim ke email Anda. Silakan verifikasi."
+        );
+        // Arahkan ke halaman OTP setelah registrasi sukses
+        Get.offNamed(Routes.OTP, arguments: {
+          'email': emailController.text.trim(),
+          'source': OtpSource.registration, // Menggunakan enum
+        });
       } else {
-        _handleApiError(
-            response, response['message'] ?? 'Registrasi gagal. Coba lagi.');
+        _handleApiError(response, response['message'] ?? 'Registrasi gagal. Coba lagi.');
       }
     } catch (e) {
+       // isLoading sudah dihandle di _handleApiError
       _handleApiError(e, 'Terjadi kesalahan koneksi. Silakan coba lagi nanti.');
-    } finally {
-      // isLoading.value = false; // Sudah dihandle di _handleApiError
     }
+    // Tidak perlu finally isLoading.value = false; jika sudah dihandle di atas dan di _handleApiError
   }
 
-  Future<void> registerWithGoogle() async {
+  Future<void> loginWithGoogle() async {
     if (isGoogleLoading.value) return;
     isGoogleLoading.value = true;
     errorMessage.value = '';
+
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        _handleApiError(PlatformException(code: 'sign_in_canceled'),
-            'Login Google dibatalkan.');
+        _handleApiError(PlatformException(code: 'sign_in_canceled'), 'Login Google dibatalkan.');
         return;
       }
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final String? idToken = googleAuth.idToken;
+
       if (idToken == null) {
         _handleApiError(null, 'Gagal mendapatkan ID Token dari Google.');
         return;
       }
 
-      debugPrint(
-          "Google ID Token obtained for registration. Sending to backend...");
-      // Panggil endpoint yang sama dengan login, backend akan menghandle jika user belum ada
       final response = await ApiService.signInWithGoogleToken(idToken);
+      // isGoogleLoading.value = false; // Pindahkan ke _processSuccessfulLogin atau _handleApiError
 
       if (response['status'] == 'success' &&
           response.containsKey('access_token') &&
           response.containsKey('user')) {
         final userDataMap = response['user'] as Map<String, dynamic>;
-        // Backend Anda seharusnya membuat user jika belum ada, dan mengembalikan datanya
-        await _processSuccessfulGoogleLogin(
-            response['access_token'], response['refresh_token'], userDataMap);
+        await _processSuccessfulLogin(response['access_token'],
+            response['refresh_token'], userDataMap, "Login Google");
       } else {
-        _handleApiError(
-            response,
-            response['message'] ??
-                'Registrasi/Login dengan Google gagal setelah verifikasi server.');
+        _handleApiError(response, response['message'] ?? 'Login Google gagal setelah verifikasi server.');
       }
     } catch (e) {
-      _handleApiError(
-          e, 'Terjadi kesalahan saat registrasi/login dengan Google.');
-    } finally {
-      // isGoogleLoading.value = false; // Sudah dihandle
+      _handleApiError(e, 'Terjadi kesalahan saat login dengan Google.');
     }
+    // Tidak perlu finally isGoogleLoading.value = false; jika sudah dihandle
   }
 
   void navigateToLogin() => Get.offNamed(Routes.LOGIN);

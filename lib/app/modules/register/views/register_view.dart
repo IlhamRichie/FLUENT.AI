@@ -21,13 +21,13 @@ class RegisterView extends GetView<RegisterController> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        // Hapus leading jika navigasi kembali ditangani oleh controller.navigateToLogin()
-        // atau jika ini adalah halaman awal dari stack registrasi
-        // leading: IconButton(
-        //   icon: Icon(LucideIcons.arrowLeftCircle, color: Colors.grey[700], size: 28),
-        //   onPressed: () => Get.back(),
-        //   tooltip: 'Kembali',
-        // ),
+        // Tombol kembali bisa diaktifkan jika diperlukan, atau biarkan kosong
+        // jika navigasi kembali ditangani oleh controller.navigateToLogin() dari prompt.
+         leading: IconButton(
+           icon: Icon(LucideIcons.arrowLeftCircle, color: Colors.grey[700], size: 28),
+           onPressed: () => controller.navigateToLogin(), // Atau Get.back() jika itu yang diinginkan
+           tooltip: 'Kembali ke Login',
+         ),
       ),
       body: Container(
         height: Get.height,
@@ -40,23 +40,19 @@ class RegisterView extends GetView<RegisterController> {
                 controller.primaryColor.withOpacity(0.05),
                 controller.primaryColor.withOpacity(0.1)
               ],
-              stops: const [
-                0.2,
-                0.7,
-                1.0
-              ]),
+              stops: const [0.2, 0.7, 1.0]),
         ),
         child: Center(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 28.0, vertical: 20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 40.0), // Tambah padding vertikal
             child: Form(
               key: controller.registerFormKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  SizedBox(height: Get.mediaQuery.padding.top + 10), // Jarak dari status bar
                   _buildHeader(context),
                   const SizedBox(height: 30),
                   _buildRegisterForm(context),
@@ -64,14 +60,11 @@ class RegisterView extends GetView<RegisterController> {
                   _buildSocialRegister(context),
                   const SizedBox(height: 35),
                   _buildLoginPrompt(context),
+                  const SizedBox(height: 20), // Padding bawah
                 ]
                     .animate(interval: 70.ms)
                     .fadeIn(duration: 350.ms, curve: Curves.easeOutCubic)
-                    .slideY(
-                        begin: 0.08,
-                        end: 0,
-                        duration: 350.ms,
-                        curve: Curves.easeOutCubic),
+                    .slideY(begin: 0.08, end: 0, duration: 350.ms, curve: Curves.easeOutCubic),
               ),
             ),
           ),
@@ -81,7 +74,6 @@ class RegisterView extends GetView<RegisterController> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    // ... (kode _buildHeader tetap sama)
     return Column(
       children: [
         Hero(
@@ -109,11 +101,7 @@ class RegisterView extends GetView<RegisterController> {
                   opacity: animation,
                   child: SlideTransition(
                     position: Tween<Offset>(
-                            begin: Offset(
-                                0,
-                                controller.currentTextIndex.value % 2 == 0
-                                    ? 0.25
-                                    : -0.25),
+                            begin: Offset(0, controller.currentTextIndex.value % 2 == 0 ? 0.25 : -0.25),
                             end: Offset.zero)
                         .animate(animation),
                     child: child,
@@ -136,7 +124,6 @@ class RegisterView extends GetView<RegisterController> {
   }
 
   Widget _buildRegisterForm(BuildContext context) {
-    // ... (kode untuk errorMessage, TextFormField username, email, password, confirmPassword tetap sama)
     return Animate(
       effects: [
         FadeEffect(duration: 400.ms, delay: 150.ms),
@@ -169,17 +156,14 @@ class RegisterView extends GetView<RegisterController> {
                   child: controller.errorMessage.isNotEmpty
                       ? Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           margin: const EdgeInsets.only(bottom: 18),
                           decoration: BoxDecoration(
                               color: Colors.red.withOpacity(0.08),
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                  color: Colors.red.withOpacity(0.3))),
+                              border: Border.all(color: Colors.red.withOpacity(0.3))),
                           child: Row(children: [
-                            Icon(LucideIcons.alertCircle,
-                                color: Colors.red.shade600, size: 20),
+                            Icon(LucideIcons.alertCircle, color: Colors.red.shade600, size: 20),
                             const SizedBox(width: 10),
                             Expanded(
                                 child: Text(controller.errorMessage.value,
@@ -193,8 +177,8 @@ class RegisterView extends GetView<RegisterController> {
                 )),
             _buildTextFormField(
                 textCtrl: controller.usernameController,
-                labelText: "Nama Lengkap", // atau "Nama Pengguna"
-                hintText: "Masukkan nama Anda",
+                labelText: "Nama Pengguna",
+                hintText: "Masukkan nama pengguna Anda",
                 prefixIcon: LucideIcons.user,
                 validator: controller.validateUsername),
             const SizedBox(height: 16),
@@ -206,12 +190,8 @@ class RegisterView extends GetView<RegisterController> {
                 keyboardType: TextInputType.emailAddress,
                 validator: controller.validateEmail),
             const SizedBox(height: 16),
-            // Pemanggilan Dropdown dengan Obx di luarnya
             Obx(() => _buildDropdownFormField(
-                  // Tidak perlu selectedValue: controller.selectedGender.value,
-                  // value dari DropdownButtonFormField akan mengambil dari controller.selectedGender.value
-                  value:
-                      controller.selectedGender.value, // Berikan value saat ini
+                  value: controller.selectedGender.value,
                   items: controller.genders,
                   onChanged: (value) {
                     if (value != null) controller.selectedGender.value = value;
@@ -221,7 +201,7 @@ class RegisterView extends GetView<RegisterController> {
                 )),
             const SizedBox(height: 16),
             Obx(() => _buildDropdownFormField(
-                  value: controller.selectedJob.value, // Berikan value saat ini
+                  value: controller.selectedJob.value,
                   items: controller.jobs,
                   onChanged: (value) {
                     if (value != null) controller.selectedJob.value = value;
@@ -237,8 +217,7 @@ class RegisterView extends GetView<RegisterController> {
                 prefixIcon: LucideIcons.lock,
                 obscureText: controller.obscureText.value,
                 validator: controller.validatePassword,
-                suffixIcon: _buildObscureToggle(controller.obscureText,
-                    controller.togglePasswordVisibility))),
+                suffixIcon: _buildObscureToggle(controller.obscureText, controller.togglePasswordVisibility))),
             const SizedBox(height: 16),
             Obx(() => _buildTextFormField(
                 textCtrl: controller.confirmPasswordController,
@@ -247,8 +226,7 @@ class RegisterView extends GetView<RegisterController> {
                 prefixIcon: LucideIcons.shieldCheck,
                 obscureText: controller.obscureConfirmText.value,
                 validator: controller.validateConfirmPassword,
-                suffixIcon: _buildObscureToggle(controller.obscureConfirmText,
-                    controller.toggleConfirmPasswordVisibility))),
+                suffixIcon: _buildObscureToggle(controller.obscureConfirmText, controller.toggleConfirmPasswordVisibility))),
             const SizedBox(height: 28),
             Obx(() => SizedBox(
                   width: double.infinity,
@@ -256,40 +234,32 @@ class RegisterView extends GetView<RegisterController> {
                   child: ElevatedButton.icon(
                     icon: controller.isLoading.value
                         ? Container()
-                        : const Icon(LucideIcons.userPlus,
-                            size: 20, color: Colors.white),
+                        : const Icon(LucideIcons.userPlus, size: 20, color: Colors.white),
                     label: controller.isLoading.value
                         ? const SizedBox(
                             width: 24,
                             height: 24,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2.5, color: Colors.white))
+                            child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
                         : const Text("DAFTAR AKUN",
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5)),
-                    onPressed: controller.isLoading.value ||
-                            controller.isGoogleLoading.value
+                    onPressed: controller.isLoading.value || controller.isGoogleLoading.value
                         ? null
                         : controller.register,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: controller.primaryColor,
                       foregroundColor: Colors.white,
-                      disabledBackgroundColor:
-                          controller.primaryColor.withOpacity(0.6),
+                      disabledBackgroundColor: controller.primaryColor.withOpacity(0.6),
                       elevation: 4,
                       shadowColor: controller.primaryColor.withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                   )
                       .animate(target: controller.isLoading.value ? 0 : 1)
                       .scaleXY(end: controller.isLoading.value ? 0.98 : 1.0)
-                      .shake(
-                          hz: controller.isLoading.value ? 0 : 2,
-                          duration: 200.ms,
-                          delay: 50.ms),
+                      .shake(hz: controller.isLoading.value ? 0 : 2, duration: 200.ms, delay: 50.ms),
                 )),
           ],
         ),
@@ -298,7 +268,6 @@ class RegisterView extends GetView<RegisterController> {
   }
 
   Widget _buildTextFormField({
-    // ... (Definisi _buildTextFormField tetap sama seperti di LoginView, hanya ganti controller)
     required TextEditingController textCtrl,
     required String hintText,
     required String labelText,
@@ -308,8 +277,6 @@ class RegisterView extends GetView<RegisterController> {
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
-    // final RegisterController registerCtrl = this.controller; // Ambil controller yang benar
-
     return Animate(
       effects: [
         FadeEffect(duration: 200.ms, delay: 100.ms),
@@ -333,18 +300,13 @@ class RegisterView extends GetView<RegisterController> {
           hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14.0),
           prefixIcon: Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 12.0),
-            child: Icon(prefixIcon,
-                color: controller.primaryColor,
-                size: 20), // Gunakan this.controller
+            child: Icon(prefixIcon, color: controller.primaryColor, size: 20),
           ),
-          prefixIconConstraints:
-              const BoxConstraints(minWidth: 0, minHeight: 0),
+          prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
           suffixIcon: suffixIcon,
           filled: true,
-          fillColor: controller.primaryColor
-              .withOpacity(0.03), // Gunakan this.controller
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          fillColor: controller.primaryColor.withOpacity(0.03),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide.none),
@@ -353,9 +315,7 @@ class RegisterView extends GetView<RegisterController> {
               borderSide: BorderSide(color: Colors.grey.shade300, width: 1)),
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(
-                  color: controller.primaryColor,
-                  width: 2)), // Gunakan this.controller
+              borderSide: BorderSide(color: controller.primaryColor, width: 2)),
           errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(color: Colors.red.shade400, width: 1.2)),
@@ -368,8 +328,7 @@ class RegisterView extends GetView<RegisterController> {
               color: Colors.redAccent),
         ),
         validator: validator,
-        onChanged: (_) =>
-            controller.errorMessage.value = '', // Gunakan this.controller
+        onChanged: (_) => controller.errorMessage.value = '',
         onTapOutside: (_) {
           FocusManager.instance.primaryFocus?.unfocus();
         },
@@ -378,21 +337,19 @@ class RegisterView extends GetView<RegisterController> {
   }
 
   Widget _buildDropdownFormField({
-    required String value, // Menerima String biasa
+    required String value,
     required List<String> items,
     required ValueChanged<String?> onChanged,
     required String labelText,
     required IconData prefixIcon,
   }) {
-    // final RegisterController registerCtrl = this.controller; // Tidak perlu jika controller diakses langsung
-
     return Animate(
         effects: [
           FadeEffect(duration: 200.ms, delay: 100.ms),
           ScaleEffect(begin: const Offset(0.98, 0.98), curve: Curves.easeOut)
         ],
         child: DropdownButtonFormField<String>(
-          value: value, // Gunakan value yang diterima
+          value: value,
           items: items
               .map((String item) => DropdownMenuItem<String>(
                   value: item,
@@ -417,11 +374,10 @@ class RegisterView extends GetView<RegisterController> {
               padding: const EdgeInsets.only(left: 16.0, right: 12.0),
               child: Icon(prefixIcon, color: controller.primaryColor, size: 20),
             ),
-            prefixIconConstraints:
-                const BoxConstraints(minWidth: 0, minHeight: 0),
+            prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
             filled: true,
             fillColor: controller.primaryColor.withOpacity(0.03),
-            contentPadding: const EdgeInsets.fromLTRB(0, 16, 10, 16),
+            contentPadding: const EdgeInsets.fromLTRB(0, 16, 10, 16), // Disesuaikan untuk dropdown
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide.none),
@@ -430,11 +386,9 @@ class RegisterView extends GetView<RegisterController> {
                 borderSide: BorderSide(color: Colors.grey.shade300, width: 1)),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide:
-                    BorderSide(color: controller.primaryColor, width: 2)),
+                borderSide: BorderSide(color: controller.primaryColor, width: 2)),
           ),
-          icon: Icon(LucideIcons.chevronDown,
-              color: controller.primaryColor, size: 20),
+          icon: Icon(LucideIcons.chevronDown, color: controller.primaryColor, size: 20),
           isExpanded: true,
           dropdownColor: Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -442,7 +396,6 @@ class RegisterView extends GetView<RegisterController> {
   }
 
   Widget _buildObscureToggle(RxBool obscureState, VoidCallback onPressed) {
-    // ... (tetap sama)
     return IconButton(
       icon: Icon(obscureState.value ? LucideIcons.eyeOff : LucideIcons.eye,
           color: Colors.grey[500], size: 20),
@@ -452,7 +405,6 @@ class RegisterView extends GetView<RegisterController> {
   }
 
   Widget _buildSocialRegister(BuildContext context) {
-    // ... (tetap sama)
     return Column(
       children: [
         Row(
@@ -474,20 +426,18 @@ class RegisterView extends GetView<RegisterController> {
               width: double.infinity,
               height: 50,
               child: OutlinedButton.icon(
-                icon: Image.asset("assets/images/google.webp", height: 22),
+                icon: Image.asset("assets/images/google.webp", height: 22), // Pastikan path aset benar
                 label: Text("Daftar dengan Google",
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey[700])),
-                onPressed: controller.isLoading.value ||
-                        controller.isGoogleLoading.value
+                onPressed: controller.isLoading.value || controller.isGoogleLoading.value
                     ? null
-                    : controller.registerWithGoogle,
+                    : controller.loginWithGoogle, // Menggunakan loginWithGoogle
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: Colors.grey.shade300, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   backgroundColor: Colors.white,
                   disabledForegroundColor: Colors.grey[400]?.withOpacity(0.5),
                 ),
@@ -498,17 +448,14 @@ class RegisterView extends GetView<RegisterController> {
   }
 
   Widget _buildLoginPrompt(BuildContext context) {
-    // ... (tetap sama)
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("Sudah punya akun?",
-            style: TextStyle(color: Colors.grey[600], fontSize: 14.5)),
+        Text("Sudah punya akun?", style: TextStyle(color: Colors.grey[600], fontSize: 14.5)),
         TextButton(
-          onPressed:
-              controller.isLoading.value || controller.isGoogleLoading.value
-                  ? null
-                  : controller.navigateToLogin,
+          onPressed: controller.isLoading.value || controller.isGoogleLoading.value
+              ? null
+              : controller.navigateToLogin,
           style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4)),
           child: Text("Masuk di sini",

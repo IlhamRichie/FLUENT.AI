@@ -19,6 +19,8 @@ abstract class Routes {
   static const WAWANCARA = _Paths.WAWANCARA;
   static const LUPA = _Paths.LUPA;
   static const VIRTUALHRD = _Paths.VIRTUALHRD;
+  static const OTP = _Paths.OTP;
+  static const CHATBOT = _Paths.CHATBOT;
 }
 
 abstract class _Paths {
@@ -39,4 +41,6 @@ abstract class _Paths {
   static const WAWANCARA = '/wawancara';
   static const LUPA = '/lupa';
   static const VIRTUALHRD = '/virtualhrd';
+  static const OTP = '/otp';
+  static const CHATBOT = '/chatbot';
 }

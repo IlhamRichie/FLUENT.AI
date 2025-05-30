@@ -31,7 +31,7 @@ class LoginController extends GetxController {
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
-    // serverClientId: 'YOUR_SERVER_CLIENT_ID', // Opsional, tapi direkomendasikan
+    // serverClientId: 'YOUR_SERVER_CLIENT_ID', // Opsional tapi direkomendasikan
   );
 
   Color get primaryColor => const Color(0xFFD84040);
@@ -85,9 +85,6 @@ class LoginController extends GetxController {
       final storedUserData = await _storage.read(key: 'user_data');
 
       if (token != null && token.isNotEmpty && storedUserData != null) {
-        // Tidak perlu set _userService lagi
-        // final userDataMap = jsonDecode(storedUserData) as Map<String, dynamic>;
-        // _userService.setUserData(...); // <-- HAPUS INI
         debugPrint(
             "Auto login: Token and user data found. Navigating to HOME.");
         Get.offAllNamed(Routes.HOME);
@@ -274,10 +271,7 @@ class LoginController extends GetxController {
                 'Login dengan Google gagal setelah verifikasi server.');
       }
     } catch (e) {
-      // Tangkap semua jenis error di sini
       _handleApiError(e, 'Terjadi kesalahan saat login dengan Google.');
-    } finally {
-      // isGoogleLoading.value = false; // Sudah dihandle
     }
   }
 

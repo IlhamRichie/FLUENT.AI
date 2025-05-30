@@ -1,5 +1,4 @@
 import 'package:fluent_ai/app/modules/wawancara/bindings/wawancara_binding.dart';
-import 'package:fluent_ai/app/modules/wawancara/views/wawancara_view.dart';
 import 'package:fluent_ai/app/modules/wawancara/views/wawanvara_intro_view.dart';
 import 'package:get/get.dart';
 import 'package:fluent_ai/app/data/services/latihan_service.dart';

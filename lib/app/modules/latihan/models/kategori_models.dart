@@ -1,5 +1,5 @@
 // lib/app/modules/latihan/models/kategori_latihan_model.dart
-import 'package:flutter/material.dart'; // Untuk IconData
+// Untuk IconData
 
 class KategoriLatihanModel {
   final String id;

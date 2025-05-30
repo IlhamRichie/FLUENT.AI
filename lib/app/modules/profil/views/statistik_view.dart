@@ -15,9 +15,9 @@ class _StatisticViewState extends State<StatisticView> {
 
   String get streamlitUrl {
     if (kIsWeb) {
-      return 'http://192.168.56.121:8501';
+      return 'https://fluentbps.streamlit.app';
     } else {
-      return 'http://192.168.56.121:8501';
+      return 'https://fluentbps.streamlit.app';
     }
   }
 

@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/auth_view.dart';
+import '../modules/chatbot/bindings/chatbot_binding.dart';
+import '../modules/chatbot/views/chatbot_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/intro/bindings/intro_binding.dart';
@@ -16,6 +18,8 @@ import '../modules/lupa/bindings/lupa_binding.dart';
 import '../modules/lupa/views/lupa_view.dart';
 import '../modules/navbar/bindings/navbar_binding.dart';
 import '../modules/navbar/views/navbar_view.dart';
+import '../modules/otp/bindings/otp_binding.dart';
+import '../modules/otp/views/otp_view.dart';
 import '../modules/profil/bindings/profil_binding.dart';
 import '../modules/profil/views/profil_view.dart';
 import '../modules/progres/bindings/progres_binding.dart';
@@ -120,6 +124,16 @@ class AppPages {
       name: _Paths.VIRTUALHRD,
       page: () => const VirtualhrdView(),
       binding: VirtualhrdBinding(),
+    ),
+    GetPage(
+      name: _Paths.OTP,
+      page: () => const OtpView(),
+      binding: OtpBinding(),
+    ),
+    GetPage(
+      name: _Paths.CHATBOT,
+      page: () => const ChatbotView(),
+      binding: ChatbotBinding(),
     ),
   ];
 }
