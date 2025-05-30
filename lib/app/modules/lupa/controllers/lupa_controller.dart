@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fluent_ai/app/data/services/api_service.dart'; // Impor ApiService
-import 'package:lucide_icons/lucide_icons.dart'; // Untuk ikon di snackbar (opsional)
 
 class LupaPasswordController extends GetxController {
   final GlobalKey<FormState> forgotPasswordFormKey = GlobalKey<FormState>();

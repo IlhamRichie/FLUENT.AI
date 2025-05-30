@@ -36,7 +36,7 @@ class LatihanDetailController extends GetxController {
             'Apa kelebihan utama Anda?',
             'Bagaimana Anda menghadapi tantangan?'
           ],
-          'warna': arguments['warna'] ?? '#D84040', // Tambahkan warna default
+          'warna': arguments['warna'] ?? '#D84040',
         };
       }
     } catch (e) {

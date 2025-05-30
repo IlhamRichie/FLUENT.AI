@@ -3,6 +3,7 @@
 import 'package:fluent_ai/app/modules/home/controllers/home_controller.dart';
 import 'package:fluent_ai/app/modules/home/models/aktifitas_model.dart';
 import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart'; // Pastikan path ini benar
+import 'package:fluent_ai/app/widgets/floating_chatbot_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -95,6 +96,8 @@ class HomeView extends GetView<HomeController> {
       }),
       bottomNavigationBar:
           const NavbarView(), // Pastikan NavbarView tidak bergantung pada UserService
+      floatingActionButton: const FloatingChatbotButton(), // <-- TAMBAHKAN INI
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
