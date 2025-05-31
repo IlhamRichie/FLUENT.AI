@@ -27,7 +27,7 @@ class ChatbotController extends GetxController {
 
   // Gemini API Configuration
   static const String _apiKey =
-      "bismillah"; // Replace with your actual API key
+      "rahasia"; // Replace with your actual API key
   static const String _apiUrl =
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 

@@ -15,6 +15,14 @@ import 'package:lucide_icons/lucide_icons.dart';
 // import 'package:url_launcher/url_launcher.dart'; // Komentari jika tidak dipakai untuk Google OAuth baru
 
 class LoginController extends GetxController {
+  static const String _WEB_SERVER_CLIENT_ID =
+      '801295038520-90b851hknplg0rpq77n8vr4bs1g5h7mm.apps.googleusercontent.com';
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    serverClientId: _WEB_SERVER_CLIENT_ID, // <--- DIMASUKKAN DI SINI
+  );
+
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   // late final UserService _userService; // <-- HAPUS INI
   // final AppLinks _appLinks = AppLinks(); // <-- Komentari/hapus jika tidak dipakai
@@ -28,11 +36,6 @@ class LoginController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isGoogleLoading = false.obs;
   final RxString errorMessage = ''.obs;
-
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: ['email', 'profile'],
-    // serverClientId: 'YOUR_SERVER_CLIENT_ID', // Opsional tapi direkomendasikan
-  );
 
   Color get primaryColor => const Color(0xFFD84040);
 
@@ -239,10 +242,19 @@ class LoginController extends GetxController {
     errorMessage.value = '';
 
     try {
+      // PENTING: Panggil signOut() dulu untuk memaksa dialog pemilihan akun
+      // Ini berguna untuk testing atau jika pengguna ingin switch akun.
+      // Untuk alur produksi, Anda mungkin tidak selalu ingin signOut setiap kali.
+      await _googleSignIn.signOut();
+      print("Google Sign-Out successful (untuk memaksa account chooser).");
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
       if (googleUser == null) {
+        // Pengguna membatalkan sign-in (dialog pemilihan ditutup)
         _handleApiError(PlatformException(code: 'sign_in_canceled'),
             'Login Google dibatalkan.');
+        // isGoogleLoading.value = false; // sudah dihandle di finally atau _handleApiError
         return;
       }
 
@@ -252,11 +264,14 @@ class LoginController extends GetxController {
 
       if (idToken == null) {
         _handleApiError(null, 'Gagal mendapatkan ID Token dari Google.');
+        // isGoogleLoading.value = false;
         return;
       }
 
       debugPrint("Google ID Token obtained. Sending to backend...");
       final response = await ApiService.signInWithGoogleToken(idToken);
+      debugPrint(
+          "Response from backend /api/auth/google/app-signin: ${jsonEncode(response)}");
 
       if (response['status'] == 'success' &&
           response.containsKey('access_token') &&
@@ -268,10 +283,20 @@ class LoginController extends GetxController {
         _handleApiError(
             response,
             response['message'] ??
-                'Login dengan Google gagal setelah verifikasi server.');
+                'Login dengan Google gagal setelah verifikasi server (struktur respons tidak sesuai).');
       }
     } catch (e) {
-      _handleApiError(e, 'Terjadi kesalahan saat login dengan Google.');
+      // Tangani error dari signOut() atau signIn()
+      if (e is PlatformException && e.code == 'sign_in_required') {
+        // Ini bisa terjadi jika signOut sebelumnya membuat signInSilently gagal,
+        // tapi signIn() biasa seharusnya tetap menampilkan UI.
+        // Anda bisa log ini, tapi signIn() setelah signOut seharusnya tetap memunculkan UI.
+        _handleApiError(e, 'Sign in required, UI picker should have appeared.');
+      } else {
+        _handleApiError(e, 'Terjadi kesalahan saat login dengan Google.');
+      }
+    } finally {
+      isGoogleLoading.value = false;
     }
   }
 

@@ -8,7 +8,8 @@ import 'package:flutter/foundation.dart';
 class ApiService {
   // PASTIKAN INI ADALAH ALAMAT IP SERVER FLASK ANDA YANG BENAR
   // DAN BISA DIAKSES DARI EMULATOR/DEVICE
-  static const String baseUrl = 'http://192.168.126.206:5000'; // Ganti jika perlu
+  static const String baseUrl =
+      'http://192.168.126.206:5000'; // Ganti jika perlu
 
   static Future<dynamic> _handleRequest(
     String method,
@@ -38,7 +39,7 @@ class ApiService {
         case 'GET':
           response = await http
               .get(url, headers: requestHeaders)
-              .timeout(const Duration(seconds: 20)); // Durasi timeout bisa disesuaikan
+              .timeout(const Duration(seconds: 20));
           break;
         case 'POST':
           response = await http
@@ -52,7 +53,7 @@ class ApiService {
           break;
         case 'DELETE':
           response = await http
-              .delete(url, headers: requestHeaders, body: jsonEncode(body)) // Tambahkan body jika diperlukan oleh backend
+              .delete(url, headers: requestHeaders, body: jsonEncode(body))
               .timeout(const Duration(seconds: 20));
           break;
         default:
@@ -63,33 +64,39 @@ class ApiService {
       dynamic responseData;
       try {
         if (response.body.isNotEmpty) {
-          if (response.headers['content-type']?.contains('application/json') != true) {
-             if (response.statusCode >= 200 && response.statusCode < 300) {
-                debugPrint('Warning: Expected JSON response but received ${response.headers['content-type']} for a successful request.');
-                if (response.body.trim().isEmpty) {
-                  return {'status': 'success', 'message': 'Operation successful, no content returned.'};
-                }
-             }
-            // Khusus untuk error seperti 405 yang mengembalikan HTML
-            String shortBody = response.body.length > 200 ? response.body.substring(0, 200) : response.body;
+          if (response.headers['content-type']?.contains('application/json') !=
+              true) {
+            if (response.statusCode >= 200 && response.statusCode < 300) {
+              debugPrint(
+                  'Warning: Expected JSON response but received ${response.headers['content-type']} for a successful request.');
+              if (response.body.trim().isEmpty) {
+                return {
+                  'status': 'success',
+                  'message': 'Operation successful, no content returned.'
+                };
+              }
+            }
+            String shortBody = response.body.length > 200
+                ? response.body.substring(0, 200)
+                : response.body;
             throw {
               'status': 'error',
-              'message': 'Server error ${response.statusCode}: Respon tidak valid dari server (bukan JSON). Isi: $shortBody...'
+              'message':
+                  'Server error ${response.statusCode}: Respon tidak valid dari server (bukan JSON). Isi: $shortBody...'
             };
           }
           responseData = jsonDecode(response.body);
         } else {
-          // Jika body kosong tapi status code sukses
           if (response.statusCode >= 200 && response.statusCode < 300) {
             return {
               'status': 'success',
               'message': 'Operation successful, no content returned.'
             };
           }
-          // Jika body kosong dan status code error
           responseData = {
             'status': 'error',
-            'message': 'Empty response from server with status ${response.statusCode}'
+            'message':
+                'Empty response from server with status ${response.statusCode}'
           };
         }
       } catch (e) {
@@ -98,7 +105,7 @@ class ApiService {
           debugPrint('Problematic response body: ${response.body}');
         }
         if (e is Map && e.containsKey('status') && e.containsKey('message')) {
-            rethrow;
+          rethrow;
         }
         throw {
           'status': 'error',
@@ -117,19 +124,21 @@ class ApiService {
         } else if (responseData is String && responseData.isNotEmpty) {
           errorMessage = responseData;
         } else {
-          errorMessage = 'Error ${response.statusCode}: Gagal memproses permintaan.';
+          errorMessage =
+              'Error ${response.statusCode}: Gagal memproses permintaan.';
         }
         return {
           'status': 'error',
           'message': errorMessage,
-          'data': responseData // Sertakan data asli jika ada untuk debugging
+          'data': responseData
         };
       }
     } on SocketException catch (e) {
       debugPrint('SocketException for $method $url: $e');
       throw {
         'status': 'error',
-        'message': 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.'
+        'message':
+            'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.'
       };
     } on TimeoutException catch (e) {
       debugPrint('TimeoutException for $method $url: $e');
@@ -159,7 +168,7 @@ class ApiService {
   }) async {
     return await _handleRequest(
       'POST',
-      '/auth/register', // Menggunakan prefix /auth
+      '/api/auth/register', // DISESUAIKAN: Tambahkan /api
       {
         'email': email,
         'username': username,
@@ -176,7 +185,7 @@ class ApiService {
   }) async {
     return await _handleRequest(
       'POST',
-      '/auth/login', // Menggunakan prefix /auth
+      '/api/auth/login', // DISESUAIKAN: Tambahkan /api
       {
         'email': email,
         'password': password,
@@ -185,18 +194,23 @@ class ApiService {
   }
 
   static Future<dynamic> signInWithGoogleToken(String idToken) async {
-    // Pastikan endpoint ini benar di backend Anda dan menggunakan prefix /auth jika perlu
+    // Pastikan endpoint ini benar di backend Anda. Jika ada prefix /api, tambahkan.
+    // Dari kode Flask sebelumnya, kita tidak secara eksplisit membuat /api/auth/google/app-signin.
+    // Jika Anda ingin menggunakan /api/auth/google/signin (atau nama serupa), Anda perlu membuatnya di Flask.
+    // Untuk saat ini, saya asumsikan Anda akan membuat endpoint seperti itu.
     return await _handleRequest(
       'POST',
-      '/auth/google/app-signin',
+      '/api/auth/google/app-signin', // DISESUAIKAN: Tambahkan /api (ASUMSI ANDA AKAN MEMBUAT ENDPOINT INI DI FLASK)
       {'id_token': idToken},
     );
   }
 
   static Future<dynamic> refreshToken(String refreshToken) async {
+    // Jika Anda mengimplementasikan refresh token, pastikan endpointnya juga ada di Flask
+    // dengan prefix yang sesuai.
     return await _handleRequest(
       'POST',
-      '/auth/refresh', // Menggunakan prefix /auth
+      '/api/auth/refresh', // DISESUAIKAN: Tambahkan /api (ASUMSI ANDA AKAN MEMBUAT ENDPOINT INI DI FLASK)
       {'refresh_token': refreshToken},
     );
   }
@@ -205,36 +219,36 @@ class ApiService {
   static Future<dynamic> verifyOtp({
     required String email,
     required String otp,
-    required String source,
+    required String source, // 'registration' atau 'passwordReset'
   }) async {
     return await _handleRequest(
       'POST',
-      '/auth/verify-otp', // Menggunakan prefix /auth
+      '/api/auth/verify-otp', // DISESUAIKAN: Tambahkan /api
       {
         'email': email,
         'otp': otp,
-        'source': source,
+        'source': source, // source dikirim sesuai kebutuhan controller OTP Anda
       },
     );
   }
 
   static Future<dynamic> requestOtp({
     required String email,
-    required String source,
+    required String source, // 'registration' atau 'passwordReset'
   }) async {
     return await _handleRequest(
       'POST',
-      '/auth/request-otp', // Menggunakan prefix /auth
+      '/api/auth/request-otp', // DISESUAIKAN: Tambahkan /api
       {
         'email': email,
-        'source': source,
+        'source': source, // source dikirim sesuai kebutuhan controller OTP Anda
       },
     );
   }
 
   // User Profile
   static Future<dynamic> updateUserProfile({
-    required String token,
+    required String token, // Ini adalah JWT token
     String? username,
     String? occupation,
     String? gender,
@@ -247,18 +261,29 @@ class ApiService {
     if (body.isEmpty) {
       return {'status': 'fail', 'message': 'Tidak ada data untuk diupdate.'};
     }
-    // Ganti '/auth/user/update' jika endpoint update profil Anda memiliki prefix atau path berbeda
-    return await _handleRequest('PUT', '/auth/user/update', body, token: token);
+    // Pastikan endpoint update profil Anda juga menggunakan prefix /api jika itu standar API Anda.
+    // Contoh: '/api/user/profile/update' atau '/api/auth/user/update'
+    return await _handleRequest('PUT', '/api/user/profile', body,
+        token:
+            token); // CONTOH: /api/user/profile (SESUAIKAN DENGAN ENDPOINT FLASK ANDA)
   }
+
+  // Password Reset untuk API (jika berbeda dari web)
+  // Dari kode Flask, web forgot password mengirim link.
+  // Jika API forgot password juga mengirim link, maka flow-nya mungkin sama.
+  // Jika API forgot password menggunakan OTP untuk verifikasi sebelum reset, maka perlu endpoint baru.
+  // Saat ini, `requestPasswordReset` dan `resetPasswordWithToken` di Flutter
+  // sepertinya menargetkan endpoint yang mungkin belum ada khusus untuk API (atau menggunakan yang web)
 
   static Future<dynamic> requestPasswordReset(String email) async {
     return await _handleRequest(
       'POST',
-      '/auth/forgot-password', // Menggunakan prefix /auth
+      '/api/auth/forgot-password', // DISESUAIKAN ke endpoint API
       {'email': email},
     );
   }
 
+  // Di ApiService.dart
   static Future<dynamic> resetPasswordWithToken({
     required String token,
     required String newPassword,
@@ -266,11 +291,13 @@ class ApiService {
   }) async {
     return await _handleRequest(
       'POST',
-      '/auth/reset-password', // Menggunakan prefix /auth
+      '/api/auth/reset-password', // Endpoint API BARU untuk submit reset password
       {
         'token': token,
-        'new_password': newPassword,
-        'confirm_password': confirmPassword,
+        'new_password':
+            newPassword, // Sesuaikan dengan apa yang diharapkan backend API
+        'confirm_password':
+            confirmPassword, // Sesuaikan dengan apa yang diharapkan backend API
       },
     );
   }
@@ -283,8 +310,10 @@ class ApiService {
   }) async {
     return await _handleRequest(
       'POST',
-      '/api/interview/start', // Asumsi ini menggunakan prefix /api
-      {'category': category,},
+      '/api/interview/start', // Ini sudah menggunakan /api, sepertinya OK
+      {
+        'category': category,
+      },
       token: token,
     );
   }

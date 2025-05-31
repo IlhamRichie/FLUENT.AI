@@ -9,24 +9,36 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert'; // Untuk jsonEncode
-import 'package:http/http.dart' as http_pkg; // Untuk ClientException (jika diperlukan untuk error handling spesifik)
+import 'package:http/http.dart'
+    as http_pkg; // Untuk ClientException (jika diperlukan untuk error handling spesifik)
 import 'dart:io'; // Untuk SocketException (jika diperlukan untuk error handling spesifik)
 import 'package:flutter/services.dart'; // Untuk PlatformException (Google Sign In)
 
-
 class RegisterController extends GetxController {
+  static const String _WEB_SERVER_CLIENT_ID =
+      '801295038520-90b851hknplg0rpq77n8vr4bs1g5h7mm.apps.googleusercontent.com';
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    serverClientId: _WEB_SERVER_CLIENT_ID, // <--- DIMASUKKAN DI SINI
+  );
+
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   final RxString selectedGender = 'Pria'.obs;
   final List<String> genders = ['Pria', 'Wanita', 'Lainnya'];
   final RxString selectedJob = 'Pelajar/Mahasiswa'.obs;
   final List<String> jobs = [
-    'Pelajar/Mahasiswa', 'Karyawan Swasta', 'Profesional',
-    'Wiraswasta', 'Lainnya'
+    'Pelajar/Mahasiswa',
+    'Karyawan Swasta',
+    'Profesional',
+    'Wiraswasta',
+    'Lainnya'
   ];
 
   final RxBool obscureText = true.obs;
@@ -45,10 +57,6 @@ class RegisterController extends GetxController {
   ];
   Timer? _textRotationTimer;
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: ['email', 'profile'],
-    // serverClientId: 'YOUR_SERVER_CLIENT_ID', // Opsional jika backend memverifikasi ID Token
-  );
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   @override
@@ -68,9 +76,11 @@ class RegisterController extends GetxController {
   }
 
   void _startTextRotation() {
-    _textRotationTimer ??= Timer.periodic(const Duration(seconds: 4), (Timer timer) {
+    _textRotationTimer ??=
+        Timer.periodic(const Duration(seconds: 4), (Timer timer) {
       if (headerTexts.isNotEmpty) {
-        currentTextIndex.value = (currentTextIndex.value + 1) % headerTexts.length;
+        currentTextIndex.value =
+            (currentTextIndex.value + 1) % headerTexts.length;
       }
     });
   }
@@ -85,8 +95,10 @@ class RegisterController extends GetxController {
       messageToShow = "Gangguan koneksi. Periksa internet Anda.";
     } else if (e is PlatformException) {
       messageToShow = 'Gagal login dengan Google: ${e.message ?? e.code}';
-      if (e.code == 'sign_in_canceled') messageToShow = 'Login Google dibatalkan.';
-      if (e.code == 'network_error') messageToShow = 'Kesalahan jaringan saat login Google.';
+      if (e.code == 'sign_in_canceled')
+        messageToShow = 'Login Google dibatalkan.';
+      if (e.code == 'network_error')
+        messageToShow = 'Kesalahan jaringan saat login Google.';
     } else if (e is TimeoutException) {
       messageToShow = "Waktu koneksi habis. Silakan coba lagi.";
     }
@@ -94,10 +106,13 @@ class RegisterController extends GetxController {
     errorMessage.value = messageToShow;
     debugPrint('API Error (Register): $messageToShow. Original error: $e');
     Get.snackbar(
-      'Registrasi Gagal', messageToShow,
+      'Registrasi Gagal',
+      messageToShow,
       snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.red.shade600, colorText: Colors.white,
-      borderRadius: 10, margin: const EdgeInsets.all(12),
+      backgroundColor: Colors.red.shade600,
+      colorText: Colors.white,
+      borderRadius: 10,
+      margin: const EdgeInsets.all(12),
       icon: const Icon(LucideIcons.alertTriangle, color: Colors.white),
     );
     isLoading.value = false; // Pastikan direset
@@ -106,10 +121,13 @@ class RegisterController extends GetxController {
 
   void _showSuccessSnackbar(String title, String message) {
     Get.snackbar(
-      title, message,
+      title,
+      message,
       snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.green.shade600, colorText: Colors.white,
-      borderRadius: 10, margin: const EdgeInsets.all(12),
+      backgroundColor: Colors.green.shade600,
+      colorText: Colors.white,
+      borderRadius: 10,
+      margin: const EdgeInsets.all(12),
       icon: const Icon(LucideIcons.partyPopper, color: Colors.white),
     );
   }
@@ -135,27 +153,37 @@ class RegisterController extends GetxController {
   }
 
   void togglePasswordVisibility() => obscureText.value = !obscureText.value;
-  void toggleConfirmPasswordVisibility() => obscureConfirmText.value = !obscureConfirmText.value;
+  void toggleConfirmPasswordVisibility() =>
+      obscureConfirmText.value = !obscureConfirmText.value;
 
   String? validateUsername(String? value) {
-    if (value == null || value.isEmpty) return 'Nama pengguna tidak boleh kosong.';
+    if (value == null || value.isEmpty)
+      return 'Nama pengguna tidak boleh kosong.';
     if (value.length < 3) return 'Nama pengguna minimal 3 karakter.';
-    errorMessage.value = ''; return null;
+    errorMessage.value = '';
+    return null;
   }
+
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) return 'Email tidak boleh kosong.';
     if (!GetUtils.isEmail(value)) return 'Format email tidak valid.';
-    errorMessage.value = ''; return null;
+    errorMessage.value = '';
+    return null;
   }
+
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) return 'Password tidak boleh kosong.';
     if (value.length < 6) return 'Password minimal 6 karakter.';
-    errorMessage.value = ''; return null;
+    errorMessage.value = '';
+    return null;
   }
+
   String? validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) return 'Konfirmasi password tidak boleh kosong.';
+    if (value == null || value.isEmpty)
+      return 'Konfirmasi password tidak boleh kosong.';
     if (value != passwordController.text) return 'Password tidak cocok.';
-    errorMessage.value = ''; return null;
+    errorMessage.value = '';
+    return null;
   }
 
   Future<void> register() async {
@@ -174,19 +202,20 @@ class RegisterController extends GetxController {
 
       if (response['status'] == 'success') {
         _showSuccessSnackbar(
-          "Registrasi Berhasil!",
-          response['message'] ?? "Kode OTP telah dikirim ke email Anda. Silakan verifikasi."
-        );
+            "Registrasi Berhasil!",
+            response['message'] ??
+                "Kode OTP telah dikirim ke email Anda. Silakan verifikasi.");
         // Arahkan ke halaman OTP setelah registrasi sukses
         Get.offNamed(Routes.OTP, arguments: {
           'email': emailController.text.trim(),
           'source': OtpSource.registration, // Menggunakan enum
         });
       } else {
-        _handleApiError(response, response['message'] ?? 'Registrasi gagal. Coba lagi.');
+        _handleApiError(
+            response, response['message'] ?? 'Registrasi gagal. Coba lagi.');
       }
     } catch (e) {
-       // isLoading sudah dihandle di _handleApiError
+      // isLoading sudah dihandle di _handleApiError
       _handleApiError(e, 'Terjadi kesalahan koneksi. Silakan coba lagi nanti.');
     }
     // Tidak perlu finally isLoading.value = false; jika sudah dihandle di atas dan di _handleApiError
@@ -198,22 +227,36 @@ class RegisterController extends GetxController {
     errorMessage.value = '';
 
     try {
+      // PENTING: Panggil signOut() dulu untuk memaksa dialog pemilihan akun
+      // Ini berguna untuk testing atau jika pengguna ingin switch akun.
+      // Untuk alur produksi, Anda mungkin tidak selalu ingin signOut setiap kali.
+      await _googleSignIn.signOut();
+      print("Google Sign-Out successful (untuk memaksa account chooser).");
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
       if (googleUser == null) {
-        _handleApiError(PlatformException(code: 'sign_in_canceled'), 'Login Google dibatalkan.');
+        // Pengguna membatalkan sign-in (dialog pemilihan ditutup)
+        _handleApiError(PlatformException(code: 'sign_in_canceled'),
+            'Login Google dibatalkan.');
+        // isGoogleLoading.value = false; // sudah dihandle di finally atau _handleApiError
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       if (idToken == null) {
         _handleApiError(null, 'Gagal mendapatkan ID Token dari Google.');
+        // isGoogleLoading.value = false;
         return;
       }
 
+      debugPrint("Google ID Token obtained. Sending to backend...");
       final response = await ApiService.signInWithGoogleToken(idToken);
-      // isGoogleLoading.value = false; // Pindahkan ke _processSuccessfulLogin atau _handleApiError
+      debugPrint(
+          "Response from backend /api/auth/google/app-signin: ${jsonEncode(response)}");
 
       if (response['status'] == 'success' &&
           response.containsKey('access_token') &&
@@ -222,12 +265,24 @@ class RegisterController extends GetxController {
         await _processSuccessfulLogin(response['access_token'],
             response['refresh_token'], userDataMap, "Login Google");
       } else {
-        _handleApiError(response, response['message'] ?? 'Login Google gagal setelah verifikasi server.');
+        _handleApiError(
+            response,
+            response['message'] ??
+                'Login dengan Google gagal setelah verifikasi server (struktur respons tidak sesuai).');
       }
     } catch (e) {
-      _handleApiError(e, 'Terjadi kesalahan saat login dengan Google.');
+      // Tangani error dari signOut() atau signIn()
+      if (e is PlatformException && e.code == 'sign_in_required') {
+        // Ini bisa terjadi jika signOut sebelumnya membuat signInSilently gagal,
+        // tapi signIn() biasa seharusnya tetap menampilkan UI.
+        // Anda bisa log ini, tapi signIn() setelah signOut seharusnya tetap memunculkan UI.
+        _handleApiError(e, 'Sign in required, UI picker should have appeared.');
+      } else {
+        _handleApiError(e, 'Terjadi kesalahan saat login dengan Google.');
+      }
+    } finally {
+      isGoogleLoading.value = false;
     }
-    // Tidak perlu finally isGoogleLoading.value = false; jika sudah dihandle
   }
 
   void navigateToLogin() => Get.offNamed(Routes.LOGIN);
