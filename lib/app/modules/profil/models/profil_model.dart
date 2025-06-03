@@ -1,21 +1,29 @@
 // lib/app/modules/profil/models/profil_model.dart
 
 class UserProfileModel {
-  String name; // Dijadikan non-nullable, karena akan diisi dari username jika name asli null
-  final String email;
-  String username; // Dijadikan non-nullable
-  String avatarAsset; // Dijadikan non-nullable, akan ada path default
-  final String joinedDate;
-  String? gender; // Opsional
-  String? occupation; // Opsional
+  String name; // Nama tampilan, bisa dari Google name atau username
+  String email;
+  String username; // Username unik sistem
+  String? avatarUrlOrPath; // Bisa URL dari Google/upload, atau path aset lokal
+  String joinedDate;
+  String? gender;
+  String? occupation;
+  String? authProvider; // 'google', 'local', dll.
 
   UserProfileModel({
     required this.name,
     required this.email,
     required this.username,
-    required this.avatarAsset,
+    this.avatarUrlOrPath,
     required this.joinedDate,
-    this.gender, // Tambahkan parameter ini
-    this.occupation, // Tambahkan parameter ini
+    this.gender,
+    this.occupation,
+    this.authProvider,
   });
+
+  // Helper untuk menentukan apakah avatar adalah network image atau local asset
+  bool get isNetworkAvatar {
+    if (avatarUrlOrPath == null || avatarUrlOrPath!.isEmpty) return false;
+    return avatarUrlOrPath!.startsWith('http://') || avatarUrlOrPath!.startsWith('https://');
+  }
 }

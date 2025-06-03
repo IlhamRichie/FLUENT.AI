@@ -1,7 +1,7 @@
 // lib/app/modules/profil/views/profil_view.dart
-import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart'; // Pastikan path ini benar
+import 'package:fluent_ai/app/modules/navbar/views/navbar_view.dart';
 import 'package:fluent_ai/app/modules/profil/controllers/profil_controller.dart';
-import 'package:fluent_ai/app/modules/profil/models/profil_model.dart';
+import 'package:fluent_ai/app/modules/profil/models/profil_model.dart'; // Pastikan model diimport
 import 'package:fluent_ai/app/modules/profil/models/setting_model.dart';
 import 'package:fluent_ai/app/modules/profil/models/stats_model.dart';
 import 'package:flutter/material.dart';
@@ -17,16 +17,18 @@ class ProfilView extends GetView<ProfilController> {
     final ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors
+          .white, // Atau theme.colorScheme.background jika menggunakan Material 3
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0.5, // Sedikit shadow agar tidak terlalu flat
         automaticallyImplyLeading: false,
         title: Text('Profil Saya',
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
                 color: Colors.grey[850])),
-        centerTitle: false, // Sesuaikan jika ingin di tengah
+        centerTitle: false,
         actions: [
           IconButton(
             icon: Icon(LucideIcons.logOut, size: 22, color: Colors.red[600]),
@@ -37,18 +39,15 @@ class ProfilView extends GetView<ProfilController> {
         ],
       ),
       body: Obx(() {
+        // Kondisi loading awal, saat data profil belum ada sama sekali
         if (controller.isLoading.value &&
             controller.userProfile.value == null) {
-          // Cek userProfile juga
           return _buildShimmerPage(theme);
         }
 
-        // Tidak perlu lagi userProfile dan userStats sebagai variabel lokal di sini,
-        // karena controller.userProfile.value dan controller.userStats.value sudah reaktif.
-        // Cukup akses langsung dari controller di dalam widget builder.
-        if (controller.userProfile.value ==
-            null /*|| controller.userStats.value == null*/) {
-          // userStats bisa jadi opsional atau di-load terpisah
+        // Kondisi jika data profil gagal dimuat (setelah loading selesai tapi profile tetap null)
+        if (controller.userProfile.value == null &&
+            !controller.isLoading.value) {
           return Center(
               child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -85,28 +84,30 @@ class ProfilView extends GetView<ProfilController> {
           ));
         }
 
+        // Jika userProfile.value ada, kita bisa build UI utama
+        // (Meskipun isLoading mungkin masih true jika sedang refresh, UI lama tetap tampil)
+        final UserProfileModel? profile = controller.userProfile.value;
+        final UserStatsModel? stats = controller.userStats.value;
+
         return RefreshIndicator(
-          // Tambahkan RefreshIndicator
           onRefresh: controller.fetchProfileData,
           color: controller.primaryColor,
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics()),
             slivers: [
-              // Pastikan userProfile tidak null sebelum membangun header
-              if (controller.userProfile.value != null)
+              if (profile != null)
                 SliverToBoxAdapter(
-                    child: _buildProfileHeader(
-                        theme, controller.userProfile.value!)),
+                    child: _buildProfileHeader(theme,
+                        profile)), // Kirim profile yang sudah dicheck non-null
 
-              // Pastikan userStats tidak null sebelum membangun stats section
-              if (controller.userStats.value != null) ...[
+              if (stats != null) ...[
                 SliverToBoxAdapter(
                     child: _buildSectionHeader('Statistik Performa',
                         LucideIcons.barChartBig, controller.primaryColor)),
                 SliverToBoxAdapter(
-                    child:
-                        _buildStatsSection(theme, controller.userStats.value!)),
+                    child: _buildStatsSection(theme,
+                        stats)), // Kirim stats yang sudah dicheck non-null
               ],
 
               ...controller.settingsOptions.expand((section) {
@@ -137,7 +138,8 @@ class ProfilView extends GetView<ProfilController> {
                                 fontStyle: FontStyle.italic)),
                       ),
                     ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: 10)), // Jarak antar section
                 ];
               }).toList(),
               const SliverToBoxAdapter(
@@ -153,10 +155,11 @@ class ProfilView extends GetView<ProfilController> {
   }
 
   IconData _getSectionIcon(String sectionTitle) {
-    // ... (tetap sama)
     switch (sectionTitle.toLowerCase()) {
       case 'akun':
         return LucideIcons.userCircle2;
+      case 'preferensi & statistik': // Sesuaikan dengan title di controller
+        return LucideIcons.slidersHorizontal;
       case 'notifikasi':
         return LucideIcons.bellDot;
       case 'bantuan & info':
@@ -167,7 +170,7 @@ class ProfilView extends GetView<ProfilController> {
   }
 
   Widget _buildShimmerPage(ThemeData theme) {
-    // ... (kode _buildShimmerPage tetap sama)
+    // ... (kode _buildShimmerPage tetap sama dari sebelumnya) ...
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
@@ -259,7 +262,7 @@ class ProfilView extends GetView<ProfilController> {
   }
 
   Widget _buildSectionHeader(String title, IconData icon, Color color) {
-    // ... (tetap sama)
+    // ... (kode _buildSectionHeader tetap sama dari sebelumnya) ...
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
       child: Row(
@@ -277,12 +280,34 @@ class ProfilView extends GetView<ProfilController> {
   }
 
   Widget _buildProfileHeader(ThemeData theme, UserProfileModel profile) {
-    bool useInitials = profile.avatarAsset.isEmpty ||
-        profile.avatarAsset == 'assets/images/profil.png' ||
-        profile.avatarAsset == 'assets/images/default_avatar.png';
+    // Tentukan apakah menggunakan avatar network atau asset
+    ImageProvider? avatarImageProvider;
+    bool displayInitials = true;
 
-    ImageProvider? bgImage =
-        useInitials ? null : AssetImage(profile.avatarAsset);
+    if (profile.avatarUrlOrPath != null &&
+        profile.avatarUrlOrPath!.isNotEmpty) {
+      if (profile.isNetworkAvatar) {
+        // Gunakan helper dari model
+        avatarImageProvider = NetworkImage(profile.avatarUrlOrPath!);
+        displayInitials =
+            false; // Jika ada network image, jangan tampilkan inisial awalnya
+      } else if (profile.avatarUrlOrPath !=
+              'assets/images/default_avatar.png' &&
+          profile.avatarUrlOrPath !=
+              'assets/images/profil.png' /* path default lain jika ada */) {
+        // Ini adalah path aset lokal kustom (jika diimplementasikan)
+        avatarImageProvider = AssetImage(profile.avatarUrlOrPath!);
+        displayInitials = false;
+      }
+      // Jika avatarUrlOrPath adalah path default_avatar.png, maka displayInitials akan tetap true
+      // dan avatarImageProvider akan null (atau bisa di-set ke AssetImage(default_avatar_path))
+    }
+
+    // Jika avatarImageProvider masih null setelah pengecekan di atas (misalnya, URL kosong atau hanya path default),
+    // maka kita akan menampilkan inisial.
+    if (avatarImageProvider == null) {
+      displayInitials = true;
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -297,8 +322,14 @@ class ProfilView extends GetView<ProfilController> {
             children: [
               InkWell(
                 onTap: () {
-                  Get.snackbar("Info", "Fitur ganti avatar akan datang!",
-                      snackPosition: SnackPosition.BOTTOM);
+                  // Arahkan ke fungsi ganti avatar di controller jika loginnya bukan google
+                  if (profile.authProvider == 'local') {
+                    controller.pickAndUploadAvatar();
+                  } else {
+                    Get.snackbar(
+                        "Info", "Foto profil diambil dari akun Google Anda.",
+                        snackPosition: SnackPosition.BOTTOM);
+                  }
                 },
                 child: Stack(
                   alignment: Alignment.bottomRight,
@@ -309,54 +340,60 @@ class ProfilView extends GetView<ProfilController> {
                           controller.primaryColor.withOpacity(0.15),
                       child: CircleAvatar(
                         radius: 38,
-                        // Berikan backgroundImage yang sudah ditentukan
-                        backgroundImage: bgImage,
-                        // Hanya berikan onBackgroundImageError jika bgImage tidak null
-                        onBackgroundImageError: bgImage != null
-                            ? (exception, stackTrace) {
-                                debugPrint(
-                                    "Error loading avatar: $exception. Path: ${profile.avatarAsset}");
-                                // Anda bisa melakukan sesuatu di sini, misalnya menampilkan ikon error
-                                // atau membiarkannya kosong jika child akan menangani tampilan default.
-                                // Jika Anda ingin fallback ke inisial saat error, Anda perlu state management
-                                // untuk mengubah useInitials atau tampilan child.
-                                // Untuk sekarang, kita hanya log.
-                              }
-                            : null, // Jika bgImage null, onBackgroundImageError juga null
-                        child: useInitials ||
-                                (bgImage == null &&
-                                    profile.avatarAsset
-                                        .isNotEmpty) // Tampilkan inisial jika useInitials true ATAU jika bgImage null (karena error load) tapi ada path avatar
+                        backgroundImage:
+                            avatarImageProvider, // Gunakan ImageProvider yang sudah ditentukan
+                        onBackgroundImageError:
+                            (avatarImageProvider is NetworkImage ||
+                                    avatarImageProvider
+                                        is AssetImage) // Hanya jika bukan null
+                                ? (exception, stackTrace) {
+                                    debugPrint(
+                                        "Error loading avatar: $exception. Path/URL: ${profile.avatarUrlOrPath}");
+                                    // Jika error load, controller bisa dipanggil untuk set displayInitials jadi true
+                                    // atau state lain untuk menampilkan inisial/default.
+                                    // Untuk sekarang, biarkan child yang menangani (jika avatarImageProvider jadi null)
+                                  }
+                                : null,
+                        child: (displayInitials ||
+                                avatarImageProvider ==
+                                    null) // Tampilkan inisial jika diperlukan
                             ? Text(
                                 profile.name.isNotEmpty
                                     ? profile.name[0].toUpperCase()
-                                    : 'U',
+                                    : (profile.username.isNotEmpty
+                                        ? profile.username[0].toUpperCase()
+                                        : 'U'),
                                 style: const TextStyle(
                                     fontSize: 30,
-                                    color: Colors.white,
+                                    color: Colors
+                                        .white, // Warna inisial, mungkin perlu disesuaikan jika bg berbeda
                                     fontWeight: FontWeight.bold))
-                            : null,
+                            : null, // Tidak ada child jika gambar berhasil dimuat
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                          color: controller.primaryColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 1.5)),
-                      child: const Icon(LucideIcons.camera,
-                          size: 14, color: Colors.white),
-                    )
+                    if (profile.authProvider ==
+                        'local') // Tampilkan ikon kamera hanya untuk login lokal
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                            color: controller.primaryColor,
+                            shape: BoxShape.circle,
+                            border:
+                                Border.all(color: Colors.white, width: 1.5)),
+                        child: const Icon(LucideIcons.camera,
+                            size: 14, color: Colors.white),
+                      )
                   ],
                 ),
               ),
               const SizedBox(width: 18),
               Expanded(
-                // ... (sisa kode untuk nama, email, dll. tetap sama)
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(profile.name,
+                    Text(profile.name, // Nama Tampilan
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -366,13 +403,14 @@ class ProfilView extends GetView<ProfilController> {
                         style:
                             TextStyle(fontSize: 13.5, color: Colors.grey[600])),
                     const SizedBox(height: 2),
-                    Text('@${profile.username}',
+                    Text('@${profile.username}', // Username sistem
                         style: TextStyle(
                             fontSize: 13.5,
                             color: Colors.grey[600],
                             fontStyle: FontStyle.italic)),
                     const SizedBox(height: 6),
-                    if (profile.joinedDate.isNotEmpty)
+                    if (profile.joinedDate.isNotEmpty &&
+                        profile.joinedDate != "N/A")
                       Row(
                         children: [
                           Icon(LucideIcons.calendarPlus,
@@ -406,7 +444,7 @@ class ProfilView extends GetView<ProfilController> {
   }
 
   Widget _buildStatsSection(ThemeData theme, UserStatsModel stats) {
-    // ... (kode _buildStatsSection tetap sama)
+    // ... (kode _buildStatsSection tetap sama dari sebelumnya) ...
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Card(
@@ -451,7 +489,7 @@ class ProfilView extends GetView<ProfilController> {
       required String value,
       required String label,
       required Color color}) {
-    // ... (tetap sama)
+    // ... (kode _buildStatItem tetap sama dari sebelumnya) ...
     return Expanded(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -480,8 +518,8 @@ class ProfilView extends GetView<ProfilController> {
   }
 
   Widget _buildSettingsItem(SettingsItemModel item, ThemeData theme) {
-    // Widget ini sudah benar karena controller.settingsOptions adalah RxList dan
-    // perubahan value pada item akan memicu rebuild dari Obx utama di build()
+    // ... (kode _buildSettingsItem tetap sama dari sebelumnya) ...
+    // Seharusnya sudah reaktif karena Obx utama di build()
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
       child: Card(
