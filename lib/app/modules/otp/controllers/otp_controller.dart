@@ -23,7 +23,8 @@ class OtpController extends GetxController {
   RxBool canResendOtp = false.obs;
   Timer? _timer;
 
-  Color get primaryColor => const Color(0xFFD84040); // Sesuaikan dengan primary color Anda
+  Color get primaryColor =>
+      const Color(0xFFD84040); // Sesuaikan dengan primary color Anda
 
   @override
   void onInit() {
@@ -122,7 +123,8 @@ class OtpController extends GetxController {
   }
 
   Future<void> verifyOtp() async {
-    if (currentOtp.value.length != 6) { // Asumsi OTP 6 digit
+    if (currentOtp.value.length != 6) {
+      // Asumsi OTP 6 digit
       errorMessage.value = 'Kode OTP harus 6 digit.';
       return;
     }
@@ -137,23 +139,25 @@ class OtpController extends GetxController {
       );
 
       if (response['status'] == 'success') {
-        _showSuccessSnackbar(
-            "Verifikasi Berhasil",
+        _showSuccessSnackbar("Verifikasi Berhasil",
             response['message'] ?? "Akun Anda telah berhasil diverifikasi.");
 
         // Navigasi berdasarkan sumber OTP
         if (source == OtpSource.registration) {
-          Get.offAllNamed(Routes.LOGIN); // Arahkan ke login setelah verifikasi registrasi
+          Get.offAllNamed(
+              Routes.LOGIN); // Arahkan ke login setelah verifikasi registrasi
         } else if (source == OtpSource.passwordReset) {
-          // Arahkan ke halaman ganti password baru, mungkin dengan membawa token dari response
-          // Get.offNamed(Routes.RESET_PASSWORD_FORM, arguments: {'token': response['reset_token']});
-          // Untuk saat ini, kita arahkan ke login saja sebagai contoh
-          Get.offAllNamed(Routes.LOGIN, arguments: {'successMessage': 'Silakan login dengan password baru Anda jika sudah direset.'});
+          // ...
+          Get.offAllNamed(Routes.LOGIN, arguments: {
+            'successMessage':
+                'Silakan login dengan password baru Anda jika sudah direset.'
+          });
         } else {
           Get.offAllNamed(Routes.HOME);
         }
       } else {
-        _handleApiError(response, response['message'] ?? 'Verifikasi OTP gagal.');
+        _handleApiError(
+            response, response['message'] ?? 'Verifikasi OTP gagal.');
       }
     } catch (e) {
       _handleApiError(e, 'Terjadi kesalahan saat verifikasi OTP.');
@@ -175,10 +179,12 @@ class OtpController extends GetxController {
       ); // Mengirim ulang OTP
 
       if (response['status'] == 'success') {
-        _showSuccessSnackbar("OTP Terkirim", response['message'] ?? 'OTP baru telah dikirim ke email Anda.');
+        _showSuccessSnackbar("OTP Terkirim",
+            response['message'] ?? 'OTP baru telah dikirim ke email Anda.');
         startTimer(); // Mulai ulang timer
       } else {
-        _handleApiError(response, response['message'] ?? 'Gagal mengirim ulang OTP.');
+        _handleApiError(
+            response, response['message'] ?? 'Gagal mengirim ulang OTP.');
       }
     } catch (e) {
       _handleApiError(e, 'Terjadi kesalahan saat mengirim ulang OTP.');

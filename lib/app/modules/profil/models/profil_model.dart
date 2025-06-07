@@ -1,14 +1,13 @@
-// lib/app/modules/profil/models/profil_model.dart
-
 class UserProfileModel {
-  String name; // Nama tampilan, bisa dari Google name atau username
+  String name;
   String email;
-  String username; // Username unik sistem
-  String? avatarUrlOrPath; // Bisa URL dari Google/upload, atau path aset lokal
+  String username;
+  String? avatarUrlOrPath;
   String joinedDate;
+  String? lastLogin; // <-- TAMBAHKAN INI
   String? gender;
   String? occupation;
-  String? authProvider; // 'google', 'local', dll.
+  String? authProvider;
 
   UserProfileModel({
     required this.name,
@@ -16,12 +15,12 @@ class UserProfileModel {
     required this.username,
     this.avatarUrlOrPath,
     required this.joinedDate,
+    this.lastLogin, // <-- TAMBAHKAN INI
     this.gender,
     this.occupation,
     this.authProvider,
   });
 
-  // Helper untuk menentukan apakah avatar adalah network image atau local asset
   bool get isNetworkAvatar {
     if (avatarUrlOrPath == null || avatarUrlOrPath!.isEmpty) return false;
     return avatarUrlOrPath!.startsWith('http://') || avatarUrlOrPath!.startsWith('https://');

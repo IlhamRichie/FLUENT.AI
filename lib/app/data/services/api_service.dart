@@ -9,7 +9,7 @@ class ApiService {
   // PASTIKAN INI ADALAH ALAMAT IP SERVER FLASK ANDA YANG BENAR
   // DAN BISA DIAKSES DARI EMULATOR/DEVICE
   static const String baseUrl =
-      'http://192.168.126.206:5000'; // Ganti jika perlu
+      'https://tomcat-ace-rarely.ngrok-free.app'; // Ganti jika perlu
 
   static Future<dynamic> _handleRequest(
     String method,
