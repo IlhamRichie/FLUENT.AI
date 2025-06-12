@@ -4,12 +4,38 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+
 
 class ApiService {
   // PASTIKAN INI ADALAH ALAMAT IP SERVER FLASK ANDA YANG BENAR
   // DAN BISA DIAKSES DARI EMULATOR/DEVICE
   static const String baseUrl =
       'https://tomcat-ace-rarely.ngrok-free.app'; // Ganti jika perlu
+
+  static const FlutterSecureStorage _storage = FlutterSecureStorage();
+
+  // Fungsi helper untuk membuat User-Agent
+  static Future<String> _getCustomUserAgent() async {
+    final deviceInfo = DeviceInfoPlugin();
+    String osInfo;
+    if (kIsWeb) {
+      osInfo = 'Web';
+    } else {
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        osInfo = 'Android ${androidInfo.version.release}; ${androidInfo.model}';
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        osInfo = 'iOS ${iosInfo.systemVersion}; ${iosInfo.utsname.machine}';
+      } else {
+        osInfo = Platform.operatingSystem;
+      }
+    }
+    // Format: NamaApp/Versi (OS Versi; Model Perangkat)
+    return 'FluentApp/1.0 ($osInfo)';
+  }
 
   static Future<dynamic> _handleRequest(
     String method,
@@ -19,9 +45,14 @@ class ApiService {
     Map<String, String>? headers,
   }) async {
     final Uri url = Uri.parse('$baseUrl$endpoint');
+    final sessionId = await _storage.read(key: 'session_id');
+    final customUserAgent = await _getCustomUserAgent();
     final Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
+      'User-Agent': customUserAgent,
       if (token != null) 'Authorization': 'Bearer $token',
+      if (sessionId != null)
+        'X-Session-ID': sessionId, // <-- TAMBAHKAN HEADER SESI
       ...?headers,
     };
 
@@ -243,6 +274,36 @@ class ApiService {
         'email': email,
         'source': source, // source dikirim sesuai kebutuhan controller OTP Anda
       },
+    );
+  }
+
+  static Future<dynamic> getActiveSessions({required String token}) async {
+    return await _handleRequest(
+      'GET',
+      '/api/user/sessions', // Sesuaikan dengan prefix blueprint Anda
+      null,
+      token: token,
+    );
+  }
+
+  static Future<dynamic> terminateSession({
+    required String token,
+    required String sessionIdToDelete,
+  }) async {
+    return await _handleRequest(
+      'DELETE',
+      '/api/user/sessions/$sessionIdToDelete', // Sesuaikan dengan prefix
+      null,
+      token: token,
+    );
+  }
+
+  static Future<dynamic> getActivityLog({required String token}) async {
+    return await _handleRequest(
+      'GET',
+      '/api/user/activity-log', // Sesuaikan dengan prefix
+      null,
+      token: token,
     );
   }
 

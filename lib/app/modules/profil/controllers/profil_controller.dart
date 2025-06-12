@@ -1,6 +1,8 @@
 // lib/app/modules/profil/controllers/profil_controller.dart
 import 'dart:io'; // Untuk File (image_picker)
+import 'package:fluent_ai/app/modules/profil/models/activity_log_model.dart';
 import 'package:fluent_ai/app/modules/profil/models/profil_model.dart';
+import 'package:fluent_ai/app/modules/profil/models/session_model.dart';
 import 'package:fluent_ai/app/modules/profil/models/setting_model.dart';
 import 'package:fluent_ai/app/modules/profil/models/stats_model.dart';
 import 'package:fluent_ai/app/modules/profil/views/statistik_view.dart';
@@ -25,6 +27,11 @@ class ProfilController extends GetxController {
   final Rx<UserStatsModel?> userStats = Rx<UserStatsModel?>(null);
   final RxList<SettingsSectionModel> settingsOptions =
       <SettingsSectionModel>[].obs;
+
+  final RxList<ActiveSessionModel> activeSessions = <ActiveSessionModel>[].obs;
+  final RxList<ActivityLogModel> activityLogs = <ActivityLogModel>[].obs;
+  final isLoadingSessions = false.obs;
+  final isLoadingLogs = false.obs;
 
   final Color primaryColor = const Color(0xFFD84040);
 
@@ -162,6 +169,10 @@ class ProfilController extends GetxController {
           title: 'Edit Detail Profil', icon: LucideIcons.userCog, action: 'edit_profile_details'),
       SettingsItemModel(
           title: 'Ubah Password', icon: LucideIcons.keyRound, action: 'change_password'),
+      SettingsItemModel(
+          title: 'Manajemen Perangkat & Sesi',icon: LucideIcons.smartphone,action: 'manage_devices'),
+      SettingsItemModel(
+          title: 'Log Aktivitas',icon: LucideIcons.history,action: 'show_activity_log'),
     ];
 
     // Tambahkan opsi ubah avatar jika bukan login Google (atau jika Anda ingin Google user juga bisa override)
@@ -171,8 +182,17 @@ class ProfilController extends GetxController {
           title: 'Ubah Foto Profil', icon: LucideIcons.image, action: 'change_avatar'));
     }
 
+    // Tambahkan daftar item keamanan & aktivitas
+    List<SettingsItemModel> securityItems = [
+      SettingsItemModel(
+          title: 'Autentikasi Dua Faktor', icon: LucideIcons.shieldCheck, action: 'toggle_2fa', value: false, isSwitch: true),
+      SettingsItemModel(
+          title: 'Riwayat Login', icon: LucideIcons.clock, action: 'show_login_history'),
+    ];
+
     settingsOptions.assignAll([
       SettingsSectionModel(title: 'Akun', items: accountItems),
+      SettingsSectionModel(title: 'Keamanan & Aktivitas', items: securityItems),
       SettingsSectionModel(title: 'Preferensi & Statistik', items: [
          SettingsItemModel(
           title: 'Preferensi Bahasa', icon: LucideIcons.languages, action: 'change_language', value: 'Indonesia'),
@@ -492,6 +512,14 @@ class ProfilController extends GetxController {
         break;
       case 'show_learning_stats': // Ganti nama action jika perlu
         Get.to(() => const StatisticView());
+        break;
+      case 'manage_devices':
+        // Navigasi ke halaman baru yang akan kita buat
+        Get.toNamed(Routes.DEVICE_MANAGEMENT);
+        break;
+      case 'show_activity_log':
+        // Navigasi ke halaman baru yang akan kita buat
+        Get.toNamed(Routes.ACTIVITY_LOG);
         break;
       default:
         if (!item.isSwitch) {

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app/routes/app_pages.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +16,8 @@ void main() async {
 
   // Initialize services and controllers
   await Get.putAsync(() => UserService().init());
+
+  timeago.setLocaleMessages('id', timeago.IdMessages());
   
   runApp(
     GetMaterialApp(

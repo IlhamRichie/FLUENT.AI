@@ -223,6 +223,7 @@ class LoginController extends GetxController {
           response.containsKey('access_token') &&
           response.containsKey('user')) {
         final userDataMap = response['user'] as Map<String, dynamic>;
+        await _storage.write(key: 'session_id', value: response['session_id']);
         await _processSuccessfulLogin(response['access_token'],
             response['refresh_token'], userDataMap, "Login Email");
       } else {

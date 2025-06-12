@@ -1,9 +1,13 @@
 import 'package:get/get.dart';
 
+import '../modules/activity_log/bindings/activity_log_binding.dart';
+import '../modules/activity_log/views/activity_log_view.dart';
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/auth_view.dart';
 import '../modules/chatbot/bindings/chatbot_binding.dart';
 import '../modules/chatbot/views/chatbot_view.dart';
+import '../modules/device_management/bindings/device_management_binding.dart';
+import '../modules/device_management/views/device_management_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/intro/bindings/intro_binding.dart';
@@ -134,6 +138,16 @@ class AppPages {
       name: _Paths.CHATBOT,
       page: () => const ChatbotView(),
       binding: ChatbotBinding(),
+    ),
+    GetPage(
+      name: _Paths.ACTIVITY_LOG,
+      page: () => const ActivityLogView(),
+      binding: ActivityLogBinding(),
+    ),
+    GetPage(
+      name: _Paths.DEVICE_MANAGEMENT,
+      page: () => const DeviceManagementView(),
+      binding: DeviceManagementBinding(),
     ),
   ];
 }

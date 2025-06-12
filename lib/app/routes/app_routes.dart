@@ -21,6 +21,8 @@ abstract class Routes {
   static const VIRTUALHRD = _Paths.VIRTUALHRD;
   static const OTP = _Paths.OTP;
   static const CHATBOT = _Paths.CHATBOT;
+  static const ACTIVITY_LOG = _Paths.ACTIVITY_LOG;
+  static const DEVICE_MANAGEMENT = _Paths.DEVICE_MANAGEMENT;
 }
 
 abstract class _Paths {
@@ -43,4 +45,6 @@ abstract class _Paths {
   static const VIRTUALHRD = '/virtualhrd';
   static const OTP = '/otp';
   static const CHATBOT = '/chatbot';
+  static const ACTIVITY_LOG = '/activity-log';
+  static const DEVICE_MANAGEMENT = '/device-management';
 }
